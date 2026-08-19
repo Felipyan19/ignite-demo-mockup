@@ -3,12 +3,12 @@ import { BrandLogo } from './BrandLogo'
 
 export function DemoHeader({ onReset }: { onReset: () => void }) {
   return (
-    <header className="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-5 px-4 py-4 sm:px-6 lg:px-8">
+    <header className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
       <BrandLogo />
 
-      <div className="flex items-center gap-3">
-        <div className="hidden items-center gap-2 text-xs text-slate-400 sm:flex">
-          <ShieldCheck className="size-4 text-emerald-400" />
+      <div className="flex items-center gap-2.5">
+        <div className="hidden items-center gap-2 text-[11px] text-slate-400 sm:flex">
+          <ShieldCheck className="size-3.5 text-emerald-400" />
           <span><strong className="font-semibold text-slate-200">Simulación</strong> · sin datos reales</span>
         </div>
         <button
