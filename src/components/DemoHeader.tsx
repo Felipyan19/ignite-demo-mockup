@@ -3,20 +3,20 @@ import { BrandLogo } from './BrandLogo'
 
 export function DemoHeader({ onReset }: { onReset: () => void }) {
   return (
-    <header className="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:px-8">
+    <header className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
       <BrandLogo />
 
-      <div className="hidden text-center md:block">
-        <p className="text-sm font-semibold text-white">Estás probando una simulación realista de Ignite.</p>
-        <p className="mt-1 text-xs text-slate-400">Sin registro, sin datos reales y sin salir de esta pantalla.</p>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs text-slate-300 sm:flex">
-          <ShieldCheck className="size-4 text-emerald-400" />
-          <span><strong className="text-white">Simulación</strong><br />No ejecuta acciones reales</span>
+      <div className="flex items-center gap-2.5">
+        <div className="hidden items-center gap-2 text-[11px] text-slate-400 sm:flex">
+          <ShieldCheck className="size-3.5 text-emerald-400" />
+          <span><strong className="font-semibold text-slate-200">Simulación</strong> · sin datos reales</span>
         </div>
-        <button onClick={onReset} className="grid size-10 place-items-center rounded-xl border border-white/10 bg-white/[0.05] text-slate-300 transition hover:bg-white/10 hover:text-white" aria-label="Reiniciar demo">
+        <button
+          onClick={onReset}
+          className="grid size-9 place-items-center rounded-lg border border-white/10 bg-white/[0.035] text-slate-400 transition duration-150 hover:bg-white/[0.07] hover:text-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+          aria-label="Reiniciar demo"
+          title="Reiniciar demo"
+        >
           <RotateCcw className="size-4" />
         </button>
       </div>

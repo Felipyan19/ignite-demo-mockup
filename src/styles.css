@@ -6,35 +6,46 @@
   background: #070b18;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --motion-fast: 120ms;
+  --motion-ui: 200ms;
+  --motion-panel: 280ms;
+  --ease-out: cubic-bezier(.2,.8,.2,1);
 }
 
 * { box-sizing: border-box; }
 html { background: #070b18; }
-body { margin: 0; min-width: 320px; min-height: 100vh; }
+body { margin: 0; min-width: 320px; min-height: 100vh; line-height: 1.5; }
 button, input { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
+.demo-workspace { isolation: isolate; }
 
-::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, .28); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, .24); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
 
-.animate-in-up { animation: in-up .32s cubic-bezier(.2,.8,.2,1) both; }
-.animate-panel-in { animation: panel-in .48s cubic-bezier(.2,.8,.2,1) both; }
-.animate-highlight { animation: highlight 1.5s ease-out both; }
+.animate-page-in { animation: page-in var(--motion-panel) var(--ease-out) both; }
+.animate-in-up { animation: in-up var(--motion-ui) var(--ease-out) both; }
+.animate-panel-in { animation: panel-in var(--motion-panel) var(--ease-out) both; }
+.animate-highlight { animation: highlight .9s ease-out both; }
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 @keyframes in-up {
-  from { opacity: 0; transform: translateY(8px) scale(.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes panel-in {
-  from { opacity: 0; transform: translateX(26px); }
+  from { opacity: 0; transform: translateX(8px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes highlight {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, .30); }
-  45% { box-shadow: 0 0 0 8px rgba(16, 185, 129, .10); }
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, .18); }
+  45% { box-shadow: 0 0 0 3px rgba(16, 185, 129, .06); }
   100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
