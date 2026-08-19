@@ -1,34 +1,28 @@
 # Ignite Demo Mockup
 
-MVP visual para demostrar cómo Ignite puede ejecutar una operación desde un chat y luego mostrar el resultado en un backoffice simulado.
+MVP visual e interactivo para demostrar el valor de Ignite Apps sin backend, base de datos ni integraciones reales.
 
-## Objetivo
+## Qué demuestra
 
-Validar visualmente esta hipótesis:
+El prospecto realiza una reserva dentro de un chat y observa cómo Ignite **simularía** acciones reales en distintas herramientas:
 
-> El prospecto entiende mejor el valor de Ignite cuando ve que una conversación ejecuta acciones y actualiza un sistema, no cuando solo ve un chatbot respondiendo.
+1. Consulta disponibilidad en Google Calendar.
+2. Registra el cliente en el CRM.
+3. Crea la reserva y el evento.
+4. Prepara la confirmación por WhatsApp Business.
+5. Deja listo un cobro con Wompi.
+6. Abre un backoffice simulado donde la operación aparece actualizada.
 
-## Qué incluye
-
-- Demo 100% frontend.
-- Sin backend.
-- Sin base de datos.
-- Sin login.
-- Sin WhatsApp real.
-- Sin IA real.
-- Flujo guiado de reserva.
-- Animaciones de acciones en ejecución.
-- Resultado visual.
-- Drawer lateral con backoffice simulado.
-- Responsive desktop/mobile.
+El objetivo no es fingir que hay un backend: toda la UI indica claramente que se trata de una simulación con datos ficticios.
 
 ## Stack
 
-- React
+- React 19
 - TypeScript
 - Vite
-- CSS
-- lucide-react
+- Tailwind CSS 4
+- Lucide React
+- Estado local únicamente
 
 ## Ejecutar
 
@@ -43,37 +37,23 @@ npm run dev
 npm run build
 ```
 
-## Despliegue recomendado
+## Principios del demo
 
-Vercel. No requiere variables de entorno.
+- Sin registro antes del “aha moment”.
+- Un solo caso de uso, corto y guiado.
+- El usuario nunca sale de la pantalla.
+- Primero conversación, luego resultado y después backoffice.
+- Logos e integraciones reconocibles para conectar la demo con herramientas reales.
+- CTA comercial después de demostrar el valor.
 
-## Flujo de la demo
+## Fuera de alcance
 
-1. Usuario elige “Reservar una cita”.
-2. Selecciona “Masaje relajante”.
-3. Selecciona 5:00 PM.
-4. Confirma.
-5. Se muestran pasos animados:
-   - Validando disponibilidad
-   - Registrando cliente
-   - Creando reserva
-   - Programando recordatorio
-6. Aparece la tarjeta “Reserva confirmada”.
-7. El usuario pulsa “Ver qué pasó por dentro”.
-8. Se abre el backoffice simulado con la nueva reserva resaltada.
-
-## Fuera de alcance del MVP
-
-- APIs reales.
-- Webhooks.
-- Persistencia.
-- Multi-tenant.
-- Pagos.
-- CRM real.
-- Agentes LLM.
-- Integraciones.
-- Analytics reales.
-
-## Próximo paso si valida
-
-Convertir los estados locales en eventos reales provenientes de Ignite Core / backend.
+- Backend
+- Base de datos
+- Login
+- LLM real
+- WhatsApp real
+- Google Calendar real
+- Wompi real
+- Persistencia
+- Multi-tenant
