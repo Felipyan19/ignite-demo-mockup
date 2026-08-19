@@ -35,20 +35,19 @@ export default function App() {
           </div>
 
           <div
-            className={`demo-workspace grid overflow-hidden rounded-[24px] border border-white/10 bg-white shadow-[0_22px_60px_rgba(0,0,0,.28)] transition-[grid-template-columns] duration-300 ease-out ${
-              backofficeOpen && reservation
-                ? 'lg:grid-cols-[minmax(360px,0.76fr)_minmax(590px,1.24fr)]'
-                : 'lg:grid-cols-[minmax(0,650px)] lg:justify-center'
+            className={`demo-workspace overflow-hidden rounded-[24px] border border-white/10 bg-white shadow-[0_22px_60px_rgba(0,0,0,.28)] ${
+              backofficeOpen && reservation ? '' : 'grid lg:grid-cols-[minmax(0,650px)] lg:justify-center'
             }`}
           >
-            <ChatPanel
-              key={resetKey}
-              compact={backofficeOpen}
-              onReservationCreated={setReservation}
-              onOpenBackoffice={() => reservation && setBackofficeOpen(true)}
-            />
-            {backofficeOpen && reservation && (
+            {backofficeOpen && reservation ? (
               <BackofficePanel reservation={reservation} onClose={() => setBackofficeOpen(false)} />
+            ) : (
+              <ChatPanel
+                key={resetKey}
+                compact={false}
+                onReservationCreated={setReservation}
+                onOpenBackoffice={() => reservation && setBackofficeOpen(true)}
+              />
             )}
           </div>
 
