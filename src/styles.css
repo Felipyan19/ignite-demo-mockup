@@ -6,10 +6,11 @@
   background: #070b18;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --motion-fast: 120ms;
-  --motion-ui: 200ms;
-  --motion-panel: 280ms;
+  --motion-fast: 140ms;
+  --motion-ui: 230ms;
+  --motion-panel: 340ms;
   --ease-out: cubic-bezier(.2,.8,.2,1);
+  --ease-soft-spring: cubic-bezier(.22,1,.36,1);
 }
 
 * { box-sizing: border-box; }
@@ -25,28 +26,61 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .animate-page-in { animation: page-in var(--motion-panel) var(--ease-out) both; }
 .animate-in-up { animation: in-up var(--motion-ui) var(--ease-out) both; }
-.animate-panel-in { animation: panel-in var(--motion-panel) var(--ease-out) both; }
-.animate-highlight { animation: highlight .9s ease-out both; }
+.animate-message-in { animation: message-in 240ms var(--ease-soft-spring) both; transform-origin: bottom; }
+.animate-panel-in { animation: panel-in var(--motion-panel) var(--ease-soft-spring) both; }
+.animate-highlight { animation: highlight 1.15s var(--ease-out) both; }
+.animate-success-pop { animation: success-pop 280ms var(--ease-soft-spring) both; }
+.animate-integration-step { animation: integration-step 270ms var(--ease-soft-spring) both; }
+.animate-integration-logo { animation: integration-logo 300ms var(--ease-soft-spring) both; }
+.animate-check-pop { animation: check-pop 220ms var(--ease-soft-spring) 90ms both; }
 
 @keyframes page-in {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes in-up {
-  from { opacity: 0; transform: translateY(3px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes message-in {
+  from { opacity: 0; transform: translateY(6px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @keyframes panel-in {
-  from { opacity: 0; transform: translateX(8px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: .35; transform: translateX(18px) scale(.995); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 @keyframes highlight {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, .18); }
-  45% { box-shadow: 0 0 0 3px rgba(16, 185, 129, .06); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% { transform: scale(.995); box-shadow: 0 0 0 0 rgba(16, 185, 129, .26); }
+  32% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, .09); }
+  72% { box-shadow: 0 0 0 2px rgba(16, 185, 129, .05); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes success-pop {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes integration-step {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes integration-logo {
+  0% { transform: scale(.92); filter: drop-shadow(0 0 0 rgba(108,60,255,0)); }
+  55% { transform: scale(1.045); filter: drop-shadow(0 4px 7px rgba(108,60,255,.16)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(108,60,255,0)); }
+}
+
+@keyframes check-pop {
+  0% { opacity: 0; transform: scale(.72); }
+  70% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @media (max-width: 1023px) {
@@ -56,6 +90,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;

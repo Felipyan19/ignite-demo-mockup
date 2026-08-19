@@ -74,7 +74,7 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
   const runAutomation = async () => {
     setAutomating(true)
     for (const item of automationPlan) {
-      await wait(430)
+      await wait(480)
       setAutomationSteps((current) => [...current, item])
     }
     onReservationCreated(demoReservation)
@@ -124,7 +124,7 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
       <div ref={chatScrollRef} className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-4 py-4 sm:px-5">
         <div className="mx-auto max-w-[540px]">
           {messages.map((message) => (
-            <div key={message.id} className={`mb-2.5 flex items-end gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div key={message.id} className={`mb-2.5 flex items-end gap-2 animate-message-in ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {message.role === 'assistant' && (
                 <div className="mb-1 grid size-7 shrink-0 place-items-center rounded-full bg-slate-900 text-white">
                   <Bot className="size-3.5" />
@@ -145,7 +145,7 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
           <AutomationTrace steps={automationSteps} active={automating} />
 
           {done && (
-            <div className="mt-3.5 animate-in-up rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4 shadow-[0_8px_20px_rgba(15,23,42,.05)]">
+            <div className="mt-3.5 animate-success-pop rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4 shadow-[0_8px_20px_rgba(15,23,42,.05)]">
               <div className="flex items-center gap-2 text-emerald-700">
                 <CheckCircle2 className="size-5" />
                 <span className="text-[13px] font-black sm:text-sm">Reserva confirmada</span>
@@ -164,7 +164,7 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
               </div>
               <button
                 onClick={onOpenBackoffice}
-                className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#5B2EFF] px-4 py-2.5 text-xs font-extrabold text-white shadow-[0_8px_20px_rgba(91,46,255,.20)] transition duration-150 hover:bg-[#4f24eb] focus:outline-none focus:ring-2 focus:ring-violet-300"
+                className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#5B2EFF] px-4 py-2.5 text-xs font-extrabold text-white shadow-[0_8px_20px_rgba(91,46,255,.20)] transition duration-150 hover:-translate-y-px hover:bg-[#4f24eb] focus:outline-none focus:ring-2 focus:ring-violet-300 active:translate-y-0"
               >
                 Ver qué pasó por dentro <ArrowRight className="size-4" />
               </button>
@@ -181,7 +181,7 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
                 key={action}
                 onClick={() => continueFlow(action)}
                 disabled={automating}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3.5 py-2 text-xs font-bold text-violet-700 transition duration-150 hover:border-violet-300 hover:bg-violet-100 disabled:opacity-50"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3.5 py-2 text-xs font-bold text-violet-700 transition duration-150 hover:-translate-y-px hover:border-violet-300 hover:bg-violet-100 active:translate-y-0 disabled:opacity-50"
               >
                 {action}<ChevronRight className="size-3.5" />
               </button>
@@ -203,7 +203,7 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
           <button
             onClick={submit}
             disabled={!input.trim() || automating || done}
-            className="grid size-10 place-items-center rounded-xl bg-[#5B2EFF] text-white transition duration-150 hover:bg-[#4f24eb] disabled:bg-slate-200 disabled:text-slate-400"
+            className="grid size-10 place-items-center rounded-xl bg-[#5B2EFF] text-white transition duration-150 hover:scale-[1.03] hover:bg-[#4f24eb] active:scale-100 disabled:bg-slate-200 disabled:text-slate-400"
             aria-label="Enviar mensaje"
           >
             <Send className="size-4" />

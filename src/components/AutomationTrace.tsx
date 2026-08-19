@@ -27,7 +27,7 @@ export function AutomationTrace({ steps, active }: { steps: AutomationStep[]; ac
         </div>
         <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full rounded-full bg-[#6C3CFF] transition-[width] duration-300 ease-out"
+            className="h-full rounded-full bg-[#6C3CFF] transition-[width] duration-[360ms] ease-out"
             style={{ width: `${Math.min(100, (steps.length / 5) * 100)}%` }}
           />
         </div>
@@ -37,15 +37,19 @@ export function AutomationTrace({ steps, active }: { steps: AutomationStep[]; ac
         {steps.map((step, index) => (
           <div
             key={step.id}
-            className="flex items-center gap-2.5 py-2.5 animate-in-up"
-            style={{ animationDelay: `${Math.min(index * 20, 80)}ms` }}
+            className="flex items-center gap-2.5 py-2.5 animate-integration-step"
+            style={{ animationDelay: `${Math.min(index * 18, 72)}ms` }}
           >
-            <IntegrationLogo name={step.logo} size="sm" />
+            <div className="animate-integration-logo">
+              <IntegrationLogo name={step.logo} size="sm" />
+            </div>
             <div className="min-w-0 flex-1">
               <p className="text-[11px] font-bold text-slate-800 sm:text-xs">{step.title}</p>
               <p className="mt-0.5 truncate text-[10px] text-slate-500 sm:text-[11px]">{step.detail}</p>
             </div>
-            <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
+            <span className="animate-check-pop shrink-0 text-emerald-500">
+              <CheckCircle2 className="size-4" />
+            </span>
           </div>
         ))}
       </div>
