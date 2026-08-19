@@ -31,9 +31,17 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
   const [automating, setAutomating] = useState(false)
   const [done, setDone] = useState(false)
   const [input, setInput] = useState('')
-  const bottomRef = useRef<HTMLDivElement | null>(null)
+  const chatScrollRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), [messages, automationSteps, done])
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const container = chatScrollRef.current
+      if (!container) return
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [messages, automationSteps, done])
 
   const append = (role: Message['role'], text: string) => setMessages((current) => [...current, { id: Date.now() + Math.random(), role, text }])
 
@@ -92,7 +100,7 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
           : []
 
   return (
-    <section className={`flex min-h-[680px] flex-col overflow-hidden bg-[#f7f7fa] transition-all duration-500 ${compact ? 'rounded-l-[28px]' : 'rounded-[28px]'}`}>
+    <section className={`flex h-[680px] flex-col overflow-hidden bg-[#f7f7fa] transition-all duration-500 ${compact ? 'rounded-l-[28px]' : 'rounded-[28px]'}`}>
       <div className="flex items-center gap-3 border-b border-slate-200/80 bg-white px-4 py-3.5 sm:px-5">
         <div className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-slate-950 to-slate-700 text-white shadow-sm"><Sparkles className="size-4.5" /></div>
         <div className="min-w-0 flex-1">
@@ -106,7 +114,7 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
         <div className="rounded-xl border border-violet-100 bg-violet-50 px-2.5 py-1.5 text-[10px] font-bold text-violet-700">DEMO</div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-5 sm:px-5">
+      <div ref={chatScrollRef} className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-3 py-5 sm:px-5">
         <div className="mx-auto max-w-[560px]">
           {messages.map((message) => (
             <div key={message.id} className={`mb-3 flex items-end gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -139,7 +147,6 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
               </button>
             </div>
           )}
-          <div ref={bottomRef} />
         </div>
       </div>
 
