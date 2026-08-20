@@ -1,4 +1,4 @@
-type LogoName = 'whatsapp' | 'calendar' | 'wompi' | 'crm'
+type LogoName = 'whatsapp' | 'calendar' | 'bold' | 'wompi' | 'crm'
 
 const config: Record<LogoName, { src?: string; label: string; fallback: string; bg: string }> = {
   whatsapp: {
@@ -12,6 +12,11 @@ const config: Record<LogoName, { src?: string; label: string; fallback: string; 
     label: 'Google Calendar',
     fallback: '31',
     bg: 'bg-white',
+  },
+  bold: {
+    label: 'Bold',
+    fallback: 'B',
+    bg: 'bg-amber-50',
   },
   wompi: {
     src: 'https://wompi.co/assets/downloadble/logos_wompi/Wompi_ContraccionPrincipal.svg',
