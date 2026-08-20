@@ -50,58 +50,48 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .animate-integration-logo { animation: integration-logo 300ms var(--ease-soft-spring) both; }
 .animate-check-pop { animation: check-pop 220ms var(--ease-soft-spring) 90ms both; }
 
-@keyframes page-in {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+.journey-progress-line { transition: width 560ms var(--ease-soft-spring); }
+.journey-progress-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 42px;
+  transform: translateX(-48px);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.88), transparent);
+  animation: journey-scan 1.35s ease-in-out infinite;
 }
+.journey-progress-complete::after { display: none; }
+.journey-node-active { animation: journey-node-pulse 1.75s ease-in-out infinite; }
+.journey-context { animation: journey-context-in 300ms var(--ease-soft-spring) both; }
+.journey-live-dot { animation: journey-live-dot 1.4s ease-in-out infinite; }
 
-@keyframes in-up {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes message-in {
-  from { opacity: 0; transform: translateY(6px) scale(.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes panel-in {
-  from { opacity: .35; transform: translateX(18px) scale(.995); }
-  to { opacity: 1; transform: translateX(0) scale(1); }
-}
-
+@keyframes page-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes in-up { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes message-in { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes panel-in { from { opacity: .35; transform: translateX(18px) scale(.995); } to { opacity: 1; transform: translateX(0) scale(1); } }
 @keyframes highlight {
   0% { transform: scale(.995); box-shadow: 0 0 0 0 rgba(101, 80, 122, .22); }
   32% { transform: scale(1); box-shadow: 0 0 0 5px rgba(101, 80, 122, .08); }
   72% { box-shadow: 0 0 0 2px rgba(101, 80, 122, .04); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(101, 80, 122, 0); }
 }
-
-@keyframes success-pop {
-  from { opacity: 0; transform: translateY(6px) scale(.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes integration-step {
-  from { opacity: 0; transform: translateY(7px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+@keyframes success-pop { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes integration-step { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes integration-logo {
   0% { transform: scale(.92); filter: drop-shadow(0 0 0 rgba(108,60,255,0)); }
   55% { transform: scale(1.045); filter: drop-shadow(0 4px 7px rgba(108,60,255,.16)); }
   100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(108,60,255,0)); }
 }
-
-@keyframes check-pop {
-  0% { opacity: 0; transform: scale(.72); }
-  70% { opacity: 1; transform: scale(1.08); }
-  100% { opacity: 1; transform: scale(1); }
+@keyframes check-pop { 0% { opacity: 0; transform: scale(.72); } 70% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes journey-scan { 0% { transform: translateX(-48px); opacity: 0; } 22% { opacity: .9; } 100% { transform: translateX(310px); opacity: 0; } }
+@keyframes journey-node-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(124,58,237,.07), 0 0 0 rgba(124,58,237,0); transform: scale(1); }
+  50% { box-shadow: 0 0 0 5px rgba(124,58,237,.10), 0 0 18px rgba(124,58,237,.16); transform: scale(1.035); }
 }
+@keyframes journey-context-in { from { opacity: .45; transform: translateY(3px) scale(.992); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes journey-live-dot { 0%, 100% { opacity: .55; box-shadow: 0 0 0 0 rgba(124,58,237,.18); } 50% { opacity: 1; box-shadow: 0 0 0 4px rgba(124,58,237,0); } }
 
-@media (max-width: 1023px) {
-  .demo-workspace { grid-template-columns: 1fr !important; }
-}
+@media (max-width: 1023px) { .demo-workspace { grid-template-columns: 1fr !important; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
