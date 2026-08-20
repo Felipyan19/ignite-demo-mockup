@@ -1,4 +1,4 @@
-import { ArrowRight, Bot, CheckCircle2, ChevronRight, Send, Sparkles } from 'lucide-react'
+import { ArrowRight, Bot, CheckCircle2, ChevronRight, Clock3, Send, Sparkles } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
 import { demoReservation, type Reservation } from '../data/demoData'
 import { AutomationTrace, type AutomationStep } from './AutomationTrace'
@@ -10,9 +10,44 @@ type Props = {
   onOpenBackoffice: () => void
 }
 
-type Message = { id: number; role: 'assistant' | 'user'; text: string }
+type Message = {
+  id: number
+  role: 'assistant' | 'user'
+  text?: string
+  kind?: 'text' | 'plans'
+}
+
+type Plan = {
+  name: string
+  duration: string
+  price: string
+  description: string
+  featured?: boolean
+}
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+const plans: Plan[] = [
+  {
+    name: 'Masaje relajante',
+    duration: '60 min',
+    price: '$120.000',
+    description: 'Para descansar, liberar tensión y desconectarte un rato.',
+    featured: true,
+  },
+  {
+    name: 'Ritual en pareja',
+    duration: '90 min',
+    price: '$210.000',
+    description: 'Una experiencia tranquila para compartir y salir de la rutina.',
+  },
+  {
+    name: 'Jacuzzi + masaje',
+    duration: '120 min',
+    price: '$280.000',
+    description: 'Una opción más completa para una experiencia privada y relajada.',
+  },
+]
 
 const automationPlan: AutomationStep[] = [
   { id: 'calendar-check', title: 'Disponibilidad consultada', detail: 'Google Calendar · agenda Harmony Spa', logo: 'calendar' },
@@ -24,11 +59,17 @@ const automationPlan: AutomationStep[] = [
 
 export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: Props) {
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, role: 'assistant', text: '¡Hola! Soy el asistente virtual de Harmony Spa 💜\n¿En qué puedo ayudarte hoy?' },
+    {
+      id: 1,
+      role: 'assistant',
+      kind: 'text',
+      text: 'Hola 👋 Soy el asistente de Harmony Spa.\nPuedo ayudarte con nuestros planes, servicios o con una reserva. ¿Qué te gustaría consultar?',
+    },
   ])
   const [step, setStep] = useState(0)
   const [automationSteps, setAutomationSteps] = useState<AutomationStep[]>([])
   const [automating, setAutomating] = useState(false)
+  const [typing, setTyping] = useState(false)
   const [done, setDone] = useState(false)
   const [input, setInput] = useState('')
   const chatScrollRef = useRef<HTMLDivElement | null>(null)
@@ -41,32 +82,74 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
     })
 
     return () => cancelAnimationFrame(frame)
-  }, [messages, automationSteps, done])
+  }, [messages, automationSteps, typing, done])
 
-  const append = (role: Message['role'], text: string) => setMessages((current) => [...current, { id: Date.now() + Math.random(), role, text }])
+  const appendText = (role: Message['role'], text: string) => {
+    setMessages((current) => [...current, { id: Date.now() + Math.random(), role, kind: 'text', text }])
+  }
+
+  const appendPlans = () => {
+    setMessages((current) => [...current, { id: Date.now() + Math.random(), role: 'assistant', kind: 'plans' }])
+  }
 
   const continueFlow = async (choice: string) => {
-    if (automating || done) return
-    append('user', choice)
+    if (automating || typing || done) return
+
+    appendText('user', choice)
     setInput('')
-    await wait(420)
+    setTyping(true)
+    await wait(620)
 
     if (step === 0) {
-      append('assistant', 'Claro. Para esta demo encontré el servicio “Masaje relajante” por $120.000. ¿Quieres reservarlo para mañana?')
+      appendText(
+        'assistant',
+        'Claro, con gusto. Tenemos varias opciones según el tipo de experiencia que busques. Estas son algunas de las más consultadas:',
+      )
+      appendPlans()
+      setTyping(false)
       setStep(1)
       return
     }
+
     if (step === 1) {
-      append('assistant', 'Perfecto. Consulté el calendario del negocio y tengo disponibilidad a las 3:00 PM, 5:00 PM y 7:00 PM.')
+      appendText(
+        'assistant',
+        'El masaje relajante es una opción muy tranquila para desconectarte un rato. Dura aproximadamente 60 minutos y tiene un valor de $120.000.\n\n¿Para qué día te gustaría reservarlo?',
+      )
+      setTyping(false)
       setStep(2)
       return
     }
+
     if (step === 2) {
-      append('assistant', 'Tengo listo: Masaje relajante · mañana · 5:00 PM. ¿Confirmo la reserva?')
+      appendText(
+        'assistant',
+        'Claro. Para mañana tengo disponibilidad a las 3:00 PM, 5:00 PM y 7:00 PM. ¿Cuál horario te queda mejor?',
+      )
+      setTyping(false)
       setStep(3)
       return
     }
+
     if (step === 3) {
+      appendText('assistant', 'Perfecto. Para dejar la reserva registrada, ¿me compartes tu nombre?')
+      setTyping(false)
+      setStep(4)
+      return
+    }
+
+    if (step === 4) {
+      appendText(
+        'assistant',
+        'Gracias, Felipe. Te confirmo antes de reservar:\n\nMasaje relajante · mañana · 5:00 PM\nValor: $120.000\n\n¿Está bien así?',
+      )
+      setTyping(false)
+      setStep(5)
+      return
+    }
+
+    if (step === 5) {
+      setTyping(false)
       await runAutomation()
     }
   }
@@ -74,11 +157,14 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
   const runAutomation = async () => {
     setAutomating(true)
     for (const item of automationPlan) {
-      await wait(480)
+      await wait(440)
       setAutomationSteps((current) => [...current, item])
     }
     onReservationCreated(demoReservation)
-    append('assistant', '¡Listo! Tu reserva quedó confirmada ✅')
+    appendText(
+      'assistant',
+      'Perfecto, Felipe. Tu reserva quedó confirmada para mañana a las 5:00 PM ✅\nTe enviaremos la confirmación por WhatsApp. Si necesitas cambiar el horario, también puedo ayudarte por aquí.',
+    )
     setAutomating(false)
     setDone(true)
   }
@@ -90,14 +176,18 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
   }
 
   const quickActions = step === 0
-    ? ['Quiero reservar un masaje']
+    ? ['Quiero conocer los planes']
     : step === 1
-      ? ['Sí, para mañana']
+      ? ['Me interesa el masaje relajante']
       : step === 2
-        ? ['5:00 PM']
+        ? ['Mañana, por favor']
         : step === 3
-          ? ['Sí, confirmar']
-          : []
+          ? ['5:00 PM']
+          : step === 4
+            ? ['Felipe Castaño']
+            : step === 5
+              ? ['Sí, por favor']
+              : []
 
   return (
     <section
@@ -117,30 +207,32 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
             <span className="size-1.5 rounded-full bg-emerald-500" />
             <span className="text-[10px] font-semibold text-emerald-600">En línea</span>
           </div>
-          <p className="mt-0.5 text-[10px] text-slate-500 sm:text-[11px]">Atendido por Ignite AI</p>
+          <p className="mt-0.5 text-[10px] text-slate-500 sm:text-[11px]">Recepción virtual · Ignite AI</p>
         </div>
       </div>
 
       <div ref={chatScrollRef} className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-4 py-4 sm:px-5">
         <div className="mx-auto max-w-[540px]">
           {messages.map((message) => (
-            <div key={message.id} className={`mb-2.5 flex items-end gap-2 animate-message-in ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              {message.role === 'assistant' && (
-                <div className="mb-1 grid size-7 shrink-0 place-items-center rounded-full bg-slate-900 text-white">
-                  <Bot className="size-3.5" />
+            message.kind === 'plans' ? (
+              <PlanCatalog key={message.id} />
+            ) : (
+              <div key={message.id} className={`mb-2.5 flex items-end gap-2 animate-message-in ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {message.role === 'assistant' && <AssistantAvatar />}
+                <div
+                  className={`max-w-[84%] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[13px] leading-5 shadow-sm ${
+                    message.role === 'user'
+                      ? 'rounded-br-md bg-gradient-to-br from-[#7C3AED] to-[#5B2EFF] text-white'
+                      : 'rounded-bl-md border border-slate-200 bg-white text-slate-800'
+                  }`}
+                >
+                  {message.text}
                 </div>
-              )}
-              <div
-                className={`max-w-[84%] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[13px] leading-5 shadow-sm ${
-                  message.role === 'user'
-                    ? 'rounded-br-md bg-gradient-to-br from-[#7C3AED] to-[#5B2EFF] text-white'
-                    : 'rounded-bl-md border border-slate-200 bg-white text-slate-800'
-                }`}
-              >
-                {message.text}
               </div>
-            </div>
+            )
           ))}
+
+          {typing && <TypingIndicator />}
 
           <AutomationTrace steps={automationSteps} active={automating} />
 
@@ -180,8 +272,8 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
               <button
                 key={action}
                 onClick={() => continueFlow(action)}
-                disabled={automating}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3.5 py-2 text-xs font-bold text-violet-700 transition duration-150 hover:-translate-y-px hover:border-violet-300 hover:bg-violet-100 active:translate-y-0 disabled:opacity-50"
+                disabled={automating || typing}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3.5 py-2 text-xs font-bold text-violet-700 transition duration-150 hover:-translate-y-px hover:border-violet-300 hover:bg-violet-100 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45"
               >
                 {action}<ChevronRight className="size-3.5" />
               </button>
@@ -196,13 +288,13 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
             value={input}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && submit()}
-            disabled={automating || done}
-            placeholder={done ? 'La demo terminó. Abre el backoffice.' : 'Escribe un mensaje...'}
+            disabled={automating || typing || done}
+            placeholder={done ? 'La demo terminó. Abre el backoffice.' : typing ? 'Harmony está respondiendo…' : 'Escribe un mensaje...'}
             className="min-w-0 flex-1 bg-transparent px-1 py-2 text-[13px] text-slate-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed sm:text-sm"
           />
           <button
             onClick={submit}
-            disabled={!input.trim() || automating || done}
+            disabled={!input.trim() || automating || typing || done}
             className="grid size-10 place-items-center rounded-xl bg-[#5B2EFF] text-white transition duration-150 hover:scale-[1.03] hover:bg-[#4f24eb] active:scale-100 disabled:bg-slate-200 disabled:text-slate-400"
             aria-label="Enviar mensaje"
           >
@@ -211,6 +303,64 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
         </div>
       </div>
     </section>
+  )
+}
+
+function AssistantAvatar() {
+  return (
+    <div className="mb-1 grid size-7 shrink-0 place-items-center rounded-full bg-slate-900 text-white">
+      <Bot className="size-3.5" />
+    </div>
+  )
+}
+
+function TypingIndicator() {
+  return (
+    <div className="mb-2.5 flex items-end gap-2 animate-in-up">
+      <AssistantAvatar />
+      <div className="flex h-9 items-center gap-1 rounded-2xl rounded-bl-md border border-slate-200 bg-white px-3.5 shadow-sm" aria-label="Harmony está escribiendo">
+        <span className="size-1.5 animate-pulse rounded-full bg-slate-400" />
+        <span className="size-1.5 animate-pulse rounded-full bg-slate-400 [animation-delay:120ms]" />
+        <span className="size-1.5 animate-pulse rounded-full bg-slate-400 [animation-delay:240ms]" />
+      </div>
+    </div>
+  )
+}
+
+function PlanCatalog() {
+  return (
+    <div className="mb-2.5 flex items-end gap-2 animate-message-in">
+      <AssistantAvatar />
+      <div className="w-full max-w-[88%] overflow-hidden rounded-2xl rounded-bl-md border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-3.5 py-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[12px] font-extrabold text-slate-900">Planes y servicios</p>
+            <span className="text-[10px] font-semibold text-slate-400">Harmony Spa</span>
+          </div>
+          <p className="mt-0.5 text-[10px] leading-4 text-slate-500">Puedes preguntarme qué incluye cada opción o pedirme una recomendación.</p>
+        </div>
+
+        <div className="divide-y divide-slate-100">
+          {plans.map((plan) => (
+            <div key={plan.name} className={`px-3.5 py-2.5 ${plan.featured ? 'bg-violet-50/55' : 'bg-white'}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <strong className="text-[11px] text-slate-900">{plan.name}</strong>
+                    {plan.featured && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[9px] font-bold text-violet-700">Popular</span>}
+                  </div>
+                  <p className="mt-1 text-[10px] leading-4 text-slate-500">{plan.description}</p>
+                </div>
+                <strong className="shrink-0 text-[11px] text-slate-900">{plan.price}</strong>
+              </div>
+              <div className="mt-1.5 flex items-center gap-1 text-[9px] font-semibold text-slate-400">
+                <Clock3 className="size-3" /> {plan.duration}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
