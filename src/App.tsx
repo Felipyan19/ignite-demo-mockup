@@ -1,19 +1,38 @@
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { AutomationJourney, type JourneyContext } from './components/AutomationJourney'
 import { BackofficePanel } from './components/BackofficePanel'
 import { ChatPanel } from './components/ChatPanel'
 import { DemoHeader } from './components/DemoHeader'
 import type { Reservation } from './data/demoData'
 
+const initialJourneyContext: JourneyContext = {
+  title: 'Listo para orientar al cliente',
+  detail: 'Planes, servicios y respuestas configuradas por el negocio',
+  tool: 'knowledge',
+}
+
 export default function App() {
   const [reservation, setReservation] = useState<Reservation | null>(null)
   const [backofficeOpen, setBackofficeOpen] = useState(false)
   const [resetKey, setResetKey] = useState(0)
+  const [journeyStep, setJourneyStep] = useState(0)
+  const [journeyComplete, setJourneyComplete] = useState(false)
+  const [journeyContext, setJourneyContext] = useState<JourneyContext>(initialJourneyContext)
 
   const reset = () => {
     setReservation(null)
     setBackofficeOpen(false)
+    setJourneyStep(0)
+    setJourneyComplete(false)
+    setJourneyContext(initialJourneyContext)
     setResetKey((key) => key + 1)
+  }
+
+  const handleJourneyChange = (activeStep: number, complete: boolean, context: JourneyContext) => {
+    setJourneyStep(activeStep)
+    setJourneyComplete(complete)
+    setJourneyContext(context)
   }
 
   return (
@@ -24,7 +43,7 @@ export default function App() {
         <DemoHeader onReset={reset} />
 
         <section className="mx-auto max-w-[1440px] px-4 pb-7 sm:px-6 lg:px-8">
-          <div className="mb-4 max-w-[730px] animate-page-in">
+          <div className="max-w-[730px] animate-page-in">
             <p className="text-[11px] font-semibold text-violet-300">Demo interactiva · aproximadamente 2 minutos</p>
             <h1 className="mt-1.5 text-[1.75rem] font-black leading-[1.1] tracking-[-0.04em] text-white sm:text-[2rem] lg:text-[2.1rem]">
               De una conversación a una operación completa.
@@ -32,6 +51,10 @@ export default function App() {
             <p className="mt-2 max-w-[700px] text-[13px] leading-[1.65] text-slate-400 sm:text-sm">
               Haz una reserva y mira cómo Ignite conecta la conversación con calendario, clientes, pagos y backoffice sin sacarte de la experiencia.
             </p>
+          </div>
+
+          <div className="my-5 max-w-[980px] animate-page-in sm:my-6">
+            <AutomationJourney activeStep={journeyStep} complete={journeyComplete} context={journeyContext} />
           </div>
 
           <div
@@ -46,6 +69,7 @@ export default function App() {
               compact={backofficeOpen}
               onReservationCreated={setReservation}
               onOpenBackoffice={() => reservation && setBackofficeOpen(true)}
+              onJourneyChange={handleJourneyChange}
             />
             {backofficeOpen && reservation && (
               <BackofficePanel reservation={reservation} onClose={() => setBackofficeOpen(false)} />

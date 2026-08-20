@@ -1,18 +1,19 @@
 import { ChevronRight, Send, Sparkles } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
 import { demoReservation, type Reservation } from '../data/demoData'
-import { AutomationJourney, type JourneyContext } from './AutomationJourney'
+import type { JourneyContext } from './AutomationJourney'
 import { MessageBubble, ResultCard, TypingIndicator, type Message } from './ChatContent'
 
 type Props = {
   compact: boolean
   onReservationCreated: (reservation: Reservation) => void
   onOpenBackoffice: () => void
+  onJourneyChange: (activeStep: number, complete: boolean, context: JourneyContext) => void
 }
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: Props) {
+export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice, onJourneyChange }: Props) {
   const [messages, setMessages] = useState<Message[]>([{
     id: 1,
     role: 'assistant',
@@ -24,12 +25,6 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
   const [typing, setTyping] = useState(false)
   const [done, setDone] = useState(false)
   const [input, setInput] = useState('')
-  const [journeyStep, setJourneyStep] = useState(0)
-  const [journeyContext, setJourneyContext] = useState<JourneyContext>({
-    title: 'Listo para orientar al cliente',
-    detail: 'Planes, servicios y respuestas configuradas por el negocio',
-    tool: 'knowledge',
-  })
   const chatScrollRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -60,21 +55,21 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
     if (step === 0) {
       appendText('assistant', 'Claro 😊 Te cuento algunas de las experiencias que tenemos en Harmony. Si me dices qué estás buscando, también puedo ayudarte a elegir.')
       appendPlans()
-      setJourneyContext({ title: 'Información mostrada', detail: 'Planes y servicios de Harmony disponibles en la conversación', tool: 'knowledge' })
+      onJourneyChange(0, false, { title: 'Información mostrada', detail: 'Planes y servicios de Harmony disponibles en la conversación', tool: 'knowledge' })
       finishReply(1)
       return
     }
 
     if (step === 1) {
       appendText('assistant', 'Claro. Es una muy buena opción si buscas relajarte y desconectarte un rato. Tiene una duración aproximada de 60 minutos y un valor de $120.000.\n\n¿Para qué día te gustaría reservar?')
-      setJourneyContext({ title: 'Servicio seleccionado', detail: 'Masaje relajante · 60 min · $120.000', tool: 'knowledge' })
+      onJourneyChange(0, false, { title: 'Servicio seleccionado', detail: 'Masaje relajante · 60 min · $120.000', tool: 'knowledge' })
       finishReply(2)
       return
     }
 
     if (step === 2) {
       appendText('assistant', 'Perfecto. Para mañana tengo disponibilidad a las 3:00 PM, 5:00 PM y 7:00 PM. ¿Cuál horario te queda mejor?')
-      setJourneyContext({ title: 'Disponibilidad validada', detail: 'Google Calendar · 3 horarios disponibles', tool: 'calendar' })
+      onJourneyChange(1, false, { title: 'Disponibilidad validada', detail: 'Google Calendar · 3 horarios disponibles', tool: 'calendar' })
       finishReply(3)
       return
     }
@@ -96,17 +91,11 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
   }
 
   const updateJourneyBeforeReply = (currentStep: number) => {
-    if (currentStep === 0) setJourneyContext({ title: 'Consultando información de Harmony', detail: 'Planes y servicios configurados por el negocio', tool: 'knowledge' })
-    if (currentStep === 2) {
-      setJourneyStep(1)
-      setJourneyContext({ title: 'Consultando disponibilidad', detail: 'Google Calendar · agenda de Harmony Spa', tool: 'calendar' })
-    }
-    if (currentStep === 3) setJourneyContext({ title: 'Horario seleccionado', detail: 'Google Calendar · mañana a las 5:00 PM', tool: 'calendar' })
-    if (currentStep === 4) setJourneyContext({ title: 'Datos listos para registrar', detail: 'Cliente, servicio y horario validados', tool: 'calendar' })
-    if (currentStep === 5) {
-      setJourneyStep(2)
-      setJourneyContext({ title: 'Preparando el pago', detail: 'Bold · anticipo opcional listo para generar', tool: 'bold' })
-    }
+    if (currentStep === 0) onJourneyChange(0, false, { title: 'Consultando información de Harmony', detail: 'Planes y servicios configurados por el negocio', tool: 'knowledge' })
+    if (currentStep === 2) onJourneyChange(1, false, { title: 'Consultando disponibilidad', detail: 'Google Calendar · agenda de Harmony Spa', tool: 'calendar' })
+    if (currentStep === 3) onJourneyChange(1, false, { title: 'Horario seleccionado', detail: 'Google Calendar · mañana a las 5:00 PM', tool: 'calendar' })
+    if (currentStep === 4) onJourneyChange(1, false, { title: 'Datos listos para registrar', detail: 'Cliente, servicio y horario validados', tool: 'calendar' })
+    if (currentStep === 5) onJourneyChange(2, false, { title: 'Preparando el pago', detail: 'Bold · anticipo opcional listo para generar', tool: 'bold' })
   }
 
   const finishReply = (nextStep: number) => {
@@ -116,17 +105,15 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
 
   const runAutomation = async () => {
     setAutomating(true)
-    setJourneyStep(2)
-    setJourneyContext({ title: 'Preparando el pago', detail: 'Bold · anticipo opcional preparado de forma segura', tool: 'bold' })
+    onJourneyChange(2, false, { title: 'Preparando el pago', detail: 'Bold · anticipo opcional preparado de forma segura', tool: 'bold' })
     await wait(760)
 
-    setJourneyStep(3)
-    setJourneyContext({ title: 'Registrando la operación', detail: 'Backoffice · cliente, reserva y confirmación', tool: 'crm' })
+    onJourneyChange(3, false, { title: 'Registrando la operación', detail: 'Backoffice · cliente, reserva y confirmación', tool: 'crm' })
     await wait(900)
 
     onReservationCreated(demoReservation)
     appendText('assistant', 'Perfecto, Felipe 😊 Tu reserva quedó confirmada para mañana a las 5:00 PM. Dejé preparado el anticipo con Bold y te enviaremos la confirmación por WhatsApp. Si necesitas cambiar el horario, también puedo ayudarte por aquí.')
-    setJourneyContext({ title: 'Operación completada', detail: 'Reserva registrada y confirmación preparada', tool: 'crm' })
+    onJourneyChange(3, true, { title: 'Operación completada', detail: 'Reserva registrada y confirmación preparada', tool: 'crm' })
     setAutomating(false)
     setDone(true)
   }
@@ -152,8 +139,6 @@ export function ChatPanel({ compact, onReservationCreated, onOpenBackoffice }: P
           <p className="mt-0.5 text-[10px] text-slate-500 sm:text-[11px]">Recepción virtual · Ignite AI</p>
         </div>
       </div>
-
-      <AutomationJourney activeStep={journeyStep} complete={done} context={journeyContext} />
 
       <div ref={chatScrollRef} className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-4 py-3 sm:px-5">
         <div className="mx-auto max-w-[540px]">
