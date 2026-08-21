@@ -1,5 +1,6 @@
 import { MoreVertical, PackageSearch, Phone, Video } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import type { Order } from '../data/demoData'
 import { MessageBubble, TypingIndicator, type Message } from './ChatContent'
 import { WhatsAppSendIcon } from './icons/WhatsAppSendIcon'
 import type { JourneyContext } from './VerticalProgress'
@@ -8,6 +9,7 @@ type PaymentTerm = 'new' | '30' | '90' | null
 
 type Props = {
   onProgressChange: (activeStep: number, complete: boolean, context: JourneyContext) => void
+  onOrderCreated: (order: Order) => void
 }
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -19,7 +21,13 @@ const totals: Record<Exclude<PaymentTerm, null>, string> = {
   '90': '$326.000',
 }
 
-export function InventoryChatPanel({ onProgressChange }: Props) {
+const termLabels: Record<Exclude<PaymentTerm, null>, string> = {
+  new: 'Primer pedido',
+  '30': 'Pago a 30 días',
+  '90': 'Pago entre 30 y 90 días',
+}
+
+export function InventoryChatPanel({ onProgressChange, onOrderCreated }: Props) {
   const [messages, setMessages] = useState<Message[]>(() => [{
     id: 1,
     role: 'assistant',
@@ -29,6 +37,7 @@ export function InventoryChatPanel({ onProgressChange }: Props) {
   }])
   const [step, setStep] = useState(0)
   const [paymentTerm, setPaymentTerm] = useState<PaymentTerm>(null)
+  const [customerName, setCustomerName] = useState<string | null>(null)
   const [typing, setTyping] = useState(false)
   const [done, setDone] = useState(false)
   const chatScrollRef = useRef<HTMLDivElement | null>(null)
@@ -89,6 +98,7 @@ export function InventoryChatPanel({ onProgressChange }: Props) {
       return
     }
 
+    setCustomerName('Javier')
     await respond('Hola, Javier. Ya encontré tus datos. ¿Deseas pagar a 30 días o entre 30 y 90 días?')
     onProgressChange(1, false, { title: 'Cliente reconocido', detail: 'Javier · datos recuperados, sin volver a solicitarlos', tool: 'customer' })
     setStep(4)
@@ -98,6 +108,7 @@ export function InventoryChatPanel({ onProgressChange }: Props) {
     if (typing) return
     appendText('user', 'Compartir datos para la cotización')
     setPaymentTerm('new')
+    setCustomerName('Suministros Andina')
     onProgressChange(1, false, { title: 'Cliente registrado', detail: 'Datos comerciales recibidos correctamente', tool: 'customer' })
     await showQuote('new')
   }
@@ -147,7 +158,16 @@ export function InventoryChatPanel({ onProgressChange }: Props) {
     appendText('user', 'Confirmar pedido')
     onProgressChange(3, false, { title: 'Creando orden previa', detail: 'Cotización aceptada por el cliente', tool: 'order' })
     await respond('¡Listo! He tomado tu pedido, preparé la orden de compra previa y la envié a la persona encargada. Te mantendré informado.', 820)
-    onProgressChange(3, true, { title: 'Pedido enviado', detail: `Orden previa · ${totals[paymentTerm]} · pendiente de gestión`, tool: 'order' })
+    onProgressChange(4, true, { title: 'Pedido registrado en backoffice', detail: `Orden previa · ${totals[paymentTerm]} · pendiente de gestión`, tool: 'crm' })
+    onOrderCreated({
+      id: 'ORD-4041',
+      customer: customerName ?? 'Cliente',
+      product: 'Acetaminofén 500 mg',
+      quantity: '100 unidades',
+      total: totals[paymentTerm],
+      term: termLabels[paymentTerm],
+      isNew: true,
+    })
     setDone(true)
   }
 

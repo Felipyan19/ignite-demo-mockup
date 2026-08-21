@@ -3,20 +3,23 @@ import { useEffect, useRef, useState } from 'react'
 import { BackofficeLive } from '../components/BackofficeLive'
 import { BrandLogo } from '../components/BrandLogo'
 import { ChatPanel } from '../components/ChatPanel'
+import { InventoryBackofficeLive } from '../components/InventoryBackofficeLive'
 import { InventoryChatPanel } from '../components/InventoryChatPanel'
 import { VerticalProgress } from '../components/VerticalProgress'
-import type { Reservation } from '../data/demoData'
+import type { Order, Reservation } from '../data/demoData'
 
 export default function DemoPage() {
   const [demoType, setDemoType] = useState<'agenda' | 'inventory'>('agenda')
   const [progressStep, setProgressStep] = useState(0)
   const [progressComplete, setProgressComplete] = useState(false)
   const [reservation, setReservation] = useState<Reservation | null>(null)
+  const [order, setOrder] = useState<Order | null>(null)
   const [resetKey, setResetKey] = useState(0)
   const backofficeRef = useRef<HTMLDivElement | null>(null)
+  const hasResult = demoType === 'agenda' ? Boolean(reservation) : Boolean(order)
 
   useEffect(() => {
-    if (!reservation) return
+    if (!hasResult) return
 
     const target = backofficeRef.current
     if (!target) return
@@ -43,12 +46,13 @@ export default function DemoPage() {
       cancelAnimationFrame(scrollFrame)
       observer.disconnect()
     }
-  }, [reservation])
+  }, [hasResult])
 
   const reset = () => {
     setProgressStep(0)
     setProgressComplete(false)
     setReservation(null)
+    setOrder(null)
     setResetKey((key) => key + 1)
   }
 
@@ -57,6 +61,7 @@ export default function DemoPage() {
     setProgressStep(0)
     setProgressComplete(false)
     setReservation(null)
+    setOrder(null)
     setResetKey((key) => key + 1)
   }
 
@@ -114,6 +119,7 @@ export default function DemoPage() {
               ) : (
                 <InventoryChatPanel
                   key={`inventory-${resetKey}`}
+                  onOrderCreated={setOrder}
                   onProgressChange={(step, complete) => {
                     setProgressStep(step)
                     setProgressComplete(complete)
@@ -126,13 +132,17 @@ export default function DemoPage() {
             </div>
           </div>
 
-          {demoType === 'agenda' && reservation && (
+          {hasResult && (
             <div
               ref={backofficeRef}
               className="result-band -mx-4 mt-14 px-4 pt-12 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10"
             >
               <div className="backoffice-stage">
-                <BackofficeLive reservation={reservation} />
+                {demoType === 'agenda' && reservation ? (
+                  <BackofficeLive reservation={reservation} />
+                ) : order ? (
+                  <InventoryBackofficeLive order={order} />
+                ) : null}
               </div>
             </div>
           )}

@@ -66,3 +66,49 @@ export const plans = [
   { name: 'Ritual en pareja', price: '$260.000', duration: '75 min', description: 'Experiencia doble con aromaterapia y copa de bienvenida.' },
   { name: 'Jacuzzi + masaje', price: '$180.000', duration: '60 min', description: 'Hidroterapia y masaje relajante en una sola sesión.' },
 ] as const
+
+export type Order = {
+  id: string
+  customer: string
+  product: string
+  quantity: string
+  total: string
+  term: string
+  isNew?: boolean
+}
+
+export const todaysOrders: Order[] = [
+  {
+    id: 'ORD-4028',
+    customer: 'Farmacia San Rafael',
+    product: 'Ibuprofeno 400 mg',
+    quantity: '60 unidades',
+    total: '$168.000',
+    term: 'Pago a 30 días',
+  },
+  {
+    id: 'ORD-4015',
+    customer: 'Droguería La Merced',
+    product: 'Acetaminofén 500 mg',
+    quantity: '40 unidades',
+    total: '$106.400',
+    term: 'Cliente registrado',
+  },
+]
+
+export const inventoryMetrics = {
+  ordersToday: '4',
+  clients: '52',
+  quoted: '$1.240.000',
+}
+
+export const baseInventoryActivity: ActivityItem[] = [
+  { id: 'inv-act-1', text: 'Cotización enviada — Farmacia San Rafael', when: 'Hace 1h' },
+  { id: 'inv-act-2', text: 'Pedido aprobado — Droguería La Merced', when: 'Hace 3h' },
+]
+
+export const newInventoryActivity: ActivityItem[] = [
+  { id: 'inv-act-new-1', text: 'Cotización presentada', when: 'Hace un momento' },
+  { id: 'inv-act-new-2', text: 'Orden previa creada', when: 'Hace un momento' },
+  { id: 'inv-act-new-3', text: 'Solicitud enviada a la persona encargada', when: 'Hace un momento' },
+]

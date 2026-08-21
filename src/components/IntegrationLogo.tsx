@@ -1,6 +1,8 @@
-type LogoName = 'whatsapp' | 'calendar' | 'bold' | 'wompi' | 'crm'
+import { Database, FileText, type LucideIcon } from 'lucide-react'
 
-const config: Record<LogoName, { src?: string; label: string; fallback: string; bg: string }> = {
+type LogoName = 'whatsapp' | 'calendar' | 'bold' | 'wompi' | 'crm' | 'erp' | 'pdf'
+
+const config: Record<LogoName, { src?: string; icon?: LucideIcon; iconColor?: string; label: string; fallback: string; bg: string }> = {
   whatsapp: {
     src: 'https://cdn.simpleicons.org/whatsapp/25D366',
     label: 'WhatsApp Business',
@@ -29,14 +31,32 @@ const config: Record<LogoName, { src?: string; label: string; fallback: string; 
     fallback: 'I',
     bg: 'bg-violet-100',
   },
+  erp: {
+    icon: Database,
+    iconColor: 'text-blue-600',
+    label: 'Sistema de inventario',
+    fallback: 'IN',
+    bg: 'bg-blue-50',
+  },
+  pdf: {
+    icon: FileText,
+    iconColor: 'text-red-600',
+    label: 'Cotización en PDF',
+    fallback: 'PDF',
+    bg: 'bg-red-50',
+  },
 }
 
 export function IntegrationLogo({ name, size = 'md' }: { name: LogoName; size?: 'sm' | 'md' }) {
   const item = config[name]
   const classes = size === 'sm' ? 'size-7 rounded-lg' : 'size-9 rounded-xl'
+  const Icon = item.icon
+
   return (
     <div className={`${classes} ${item.bg} grid shrink-0 place-items-center border border-black/[0.06] shadow-sm`} title={item.label}>
-      {item.src ? (
+      {Icon ? (
+        <Icon className={`${size === 'sm' ? 'size-4' : 'size-5'} ${item.iconColor}`} strokeWidth={2.25} />
+      ) : item.src ? (
         <img src={item.src} alt={item.label} className={size === 'sm' ? 'size-4.5 object-contain' : 'size-5.5 object-contain'} />
       ) : (
         <span className="text-xs font-black text-slate-800">{item.fallback}</span>

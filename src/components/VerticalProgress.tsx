@@ -1,4 +1,4 @@
-import { ClipboardCheck, FileText, Flame, Info, PackageSearch, UserRoundCheck } from 'lucide-react'
+import { ClipboardCheck, Flame, Info, PackageSearch, UserRoundCheck } from 'lucide-react'
 import { IntegrationLogo } from './IntegrationLogo'
 
 export type ProgressTool = 'info' | 'calendar' | 'bold' | 'crm' | 'product' | 'customer' | 'quote' | 'order'
@@ -21,6 +21,7 @@ const inventoryStages: { label: string; helper: string; tool: ProgressTool }[] =
   { label: 'Cliente', helper: 'Datos comerciales', tool: 'customer' },
   { label: 'Cotización', helper: 'Precio y PDF', tool: 'quote' },
   { label: 'Pedido', helper: 'Orden previa', tool: 'order' },
+  { label: 'Backoffice', helper: 'Operación', tool: 'crm' },
 ]
 
 export function VerticalProgress({ activeStep, complete, variant = 'agenda' }: { activeStep: number; complete: boolean; variant?: 'agenda' | 'inventory' }) {
@@ -95,11 +96,9 @@ function StageIcon({ tool, lit, active }: { tool: ProgressTool; lit: boolean; ac
     ? PackageSearch
     : tool === 'customer'
       ? UserRoundCheck
-      : tool === 'quote'
-        ? FileText
-        : tool === 'order'
-          ? ClipboardCheck
-          : null
+      : tool === 'order'
+        ? ClipboardCheck
+        : null
 
   if (InventoryIcon) {
     return (
@@ -109,10 +108,10 @@ function StageIcon({ tool, lit, active }: { tool: ProgressTool; lit: boolean; ac
     )
   }
 
-  if (tool === 'calendar' || tool === 'bold') {
+  if (tool === 'calendar' || tool === 'bold' || tool === 'quote') {
     return (
       <div className={`relative z-[1] grid size-8 shrink-0 place-items-center rounded-full transition-all duration-300 ${ring} ${lit ? 'shadow-[0_0_0_4px_rgba(124,58,237,.10)]' : 'opacity-35 grayscale'}`}>
-        <IntegrationLogo name={tool} size="sm" />
+        <IntegrationLogo name={tool === 'quote' ? 'pdf' : tool} size="sm" />
       </div>
     )
   }
