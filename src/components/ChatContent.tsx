@@ -1,6 +1,6 @@
-import { plansV2 } from '../../data/demoDataV2'
+import { plans } from '../data/demoData'
 
-export type MessageV2 = {
+export type Message = {
   id: number
   role: 'assistant' | 'user'
   kind?: 'text' | 'plans' | 'payment-link'
@@ -11,10 +11,10 @@ export type MessageV2 = {
   paymentConcept?: string
 }
 
-export function MessageBubbleV2({ message, onOpenPayment }: { message: MessageV2; onOpenPayment?: (message: MessageV2) => void }) {
+export function MessageBubble({ message, onOpenPayment }: { message: Message; onOpenPayment?: (message: Message) => void }) {
   const isUser = message.role === 'user'
 
-  if (message.kind === 'payment-link') return <PaymentLinkMessageV2 message={message} onOpen={() => onOpenPayment?.(message)} />
+  if (message.kind === 'payment-link') return <PaymentLinkMessage message={message} onOpen={() => onOpenPayment?.(message)} />
 
   return (
     <div className={`mb-2.5 flex animate-message-in ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -34,7 +34,7 @@ function PlansText() {
     <div>
       <p>Estos son nuestros planes disponibles hoy:</p>
       <div className="mt-2 space-y-2.5">
-        {plansV2.map((plan) => (
+        {plans.map((plan) => (
           <div key={plan.name}>
             <div className="flex items-baseline justify-between gap-3">
               <strong className="text-slate-900">{plan.name}</strong>
@@ -50,7 +50,7 @@ function PlansText() {
   )
 }
 
-function PaymentLinkMessageV2({ message, onOpen }: { message: MessageV2; onOpen: () => void }) {
+function PaymentLinkMessage({ message, onOpen }: { message: Message; onOpen: () => void }) {
   return (
     <div className="mb-2.5 flex animate-message-in justify-start">
       <button
@@ -74,7 +74,7 @@ function PaymentLinkMessageV2({ message, onOpen }: { message: MessageV2; onOpen:
   )
 }
 
-export function TypingIndicatorV2() {
+export function TypingIndicator() {
   return (
     <div className="mb-2.5 flex animate-in-up justify-start">
       <div className="flex h-9 items-center gap-1 rounded-[10px] bg-white px-3.5 shadow-[0_1px_1px_rgba(0,0,0,.08)]" aria-label="Harmony está escribiendo">

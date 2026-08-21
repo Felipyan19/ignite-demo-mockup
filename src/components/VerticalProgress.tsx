@@ -1,5 +1,5 @@
 import { Flame, Info } from 'lucide-react'
-import { IntegrationLogo } from '../IntegrationLogo'
+import { IntegrationLogo } from './IntegrationLogo'
 
 export type ProgressTool = 'info' | 'calendar' | 'bold' | 'crm'
 
@@ -22,7 +22,7 @@ export function VerticalProgress({ activeStep, complete }: { activeStep: number;
 
   return (
     <div
-      className="v2-vprogress relative flex h-full flex-col justify-between py-1"
+      className="vprogress relative flex h-full flex-col justify-between py-1"
       role="progressbar"
       aria-label="Progreso de la automatización"
       aria-valuemin={0}
@@ -34,10 +34,10 @@ export function VerticalProgress({ activeStep, complete }: { activeStep: number;
           <span key={mark} className="absolute -left-[3px] h-px w-2 rounded-full bg-white/15" style={{ top: `${mark}%` }} />
         ))}
         <div
-          className={`v2-vprogress-fill relative w-full overflow-hidden rounded-full bg-gradient-to-b from-violet-400 via-fuchsia-400 to-violet-500 ${complete ? 'v2-vprogress-complete' : ''}`}
+          className={`vprogress-fill relative w-full overflow-hidden rounded-full bg-gradient-to-b from-violet-400 via-fuchsia-400 to-violet-500 ${complete ? 'vprogress-complete' : ''}`}
           style={{ height: `${progress}%` }}
         >
-          {!complete && <span className="v2-vprogress-dot" />}
+          {!complete && <span className="vprogress-dot" />}
         </div>
       </div>
 
@@ -65,7 +65,7 @@ export function VerticalProgress({ activeStep, complete }: { activeStep: number;
 }
 
 function StageIcon({ tool, lit, active }: { tool: ProgressTool; lit: boolean; active: boolean }) {
-  const ring = active ? 'v2-vprogress-node-active' : ''
+  const ring = active ? 'vprogress-node-active' : ''
 
   if (tool === 'info') {
     return (

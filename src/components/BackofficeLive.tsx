@@ -1,18 +1,19 @@
 import { Flame } from 'lucide-react'
-import { baseActivityV2, metricsV2, newActivityV2, todaysReservationsV2, type ReservationV2 } from '../../data/demoDataV2'
-import { IntegrationLogo } from '../IntegrationLogo'
+import { baseActivity, metrics, newActivity, todaysReservations, type Reservation } from '../data/demoData'
+import { IntegrationLogo } from './IntegrationLogo'
 
-export function BackofficeLive({ reservation }: { reservation: ReservationV2 }) {
-  const rows = [reservation, ...todaysReservationsV2]
-  const activity = [...newActivityV2, ...baseActivityV2]
+const activity = [...newActivity, ...baseActivity]
+
+export function BackofficeLive({ reservation }: { reservation: Reservation }) {
+  const rows = [reservation, ...todaysReservations]
 
   return (
     <div>
-      <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-violet-300/80">
+      <div className="backoffice-kicker mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-violet-300/80">
         <ArrowIcon /> Resultado en tu negocio
       </div>
 
-      <section className="v2-backoffice-in demo-backoffice-theme overflow-hidden rounded-[24px] bg-[var(--bo-bg)] shadow-[0_22px_60px_rgba(0,0,0,.28)]">
+      <section className="backoffice-panel demo-backoffice-theme overflow-hidden rounded-[24px] bg-[var(--bo-bg)] shadow-[0_22px_60px_rgba(0,0,0,.28)]">
         <div className="flex items-center justify-between gap-3 border-b border-[var(--bo-border)] bg-white/95 px-4 py-3.5 sm:px-5">
           <div className="flex min-w-0 items-center gap-2.5">
             <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-[#8B5CF6] to-[#5B2EFF] text-white shadow-[0_6px_16px_rgba(105,64,255,.3)]">
@@ -21,15 +22,15 @@ export function BackofficeLive({ reservation }: { reservation: ReservationV2 }) 
             <h2 className="truncate text-[15px] font-bold tracking-[-0.01em] text-[var(--bo-text)]">Backoffice · Harmony Spa</h2>
           </div>
           <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-            <span className="v2-live-dot size-1.5 rounded-full bg-emerald-500" /> En vivo
+            <span className="live-dot size-1.5 rounded-full bg-emerald-500" /> En vivo
           </span>
         </div>
 
         <div className="p-4 sm:p-5">
           <div className="grid grid-cols-3 gap-2.5">
-            <Metric label="Reservas hoy" value={metricsV2.reservationsToday} />
-            <Metric label="Clientes" value={metricsV2.clients} />
-            <Metric label="Cobros" value={metricsV2.revenue} />
+            <Metric label="Reservas hoy" value={metrics.reservationsToday} />
+            <Metric label="Clientes" value={metrics.clients} />
+            <Metric label="Cobros" value={metrics.revenue} />
           </div>
 
           <div className="mt-3.5">

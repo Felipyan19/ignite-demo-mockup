@@ -1,15 +1,15 @@
 import { Leaf, MoreVertical, Phone, Video } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { newReservationV2, plansV2, type ReservationV2 } from '../../data/demoDataV2'
-import { BoldCheckoutModal } from '../BoldCheckoutModal'
-import { WhatsAppSendIcon } from '../icons/WhatsAppSendIcon'
-import { MessageBubbleV2, TypingIndicatorV2, type MessageV2 } from './ChatContentV2'
+import { newReservation, plans, type Reservation } from '../data/demoData'
+import { BoldCheckoutModal } from './BoldCheckoutModal'
+import { MessageBubble, TypingIndicator, type Message } from './ChatContent'
+import { WhatsAppSendIcon } from './icons/WhatsAppSendIcon'
 import type { JourneyContext } from './VerticalProgress'
 
-type Plan = (typeof plansV2)[number]
+type Plan = (typeof plans)[number]
 
 type Props = {
-  onReservationCreated: (reservation: ReservationV2) => void
+  onReservationCreated: (reservation: Reservation) => void
   onProgressChange: (activeStep: number, complete: boolean, context: JourneyContext) => void
 }
 
@@ -17,8 +17,8 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const timeNow = () => new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false })
 const timeSlots = ['Hoy · 5:00 PM', 'Hoy · 6:30 PM', 'Mañana · 10:00 AM']
 
-export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
-  const [messages, setMessages] = useState<MessageV2[]>(() => [{
+export function ChatPanel({ onReservationCreated, onProgressChange }: Props) {
+  const [messages, setMessages] = useState<Message[]>(() => [{
     id: 1,
     role: 'assistant',
     kind: 'text',
@@ -27,12 +27,12 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
   }])
   const [step, setStep] = useState(0)
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null)
-  const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [automating, setAutomating] = useState(false)
   const [typing, setTyping] = useState(false)
   const [done, setDone] = useState(false)
   const [payment, setPayment] = useState<{ url: string; amount: string; concept: string } | null>(null)
   const chatScrollRef = useRef<HTMLDivElement | null>(null)
+  const selectedTimeRef = useRef<string | null>(null)
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -42,7 +42,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
     return () => cancelAnimationFrame(frame)
   }, [messages, typing, done])
 
-  const appendText = (role: MessageV2['role'], text: string) => {
+  const appendText = (role: Message['role'], text: string) => {
     setMessages((current) => [...current, { id: Date.now() + Math.random(), role, kind: 'text', text, time: timeNow() }])
   }
 
@@ -89,7 +89,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
 
   const selectTime = async (time: string) => {
     if (automating || typing || done || !selectedPlan) return
-    setSelectedTime(time)
+    selectedTimeRef.current = time
     appendText('user', time)
     onProgressChange(1, false, { title: 'Horario seleccionado', detail: `Google Calendar · ${time}`, tool: 'calendar' })
     setTyping(true)
@@ -101,7 +101,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
   }
 
   const confirmBooking = async (withDeposit: boolean) => {
-    if (automating || typing || done || !selectedPlan || !selectedTime) return
+    if (automating || typing || done || !selectedPlan || !selectedTimeRef.current) return
     appendText('user', withDeposit ? 'Confirmar con anticipo' : 'Confirmar sin anticipo')
     setTyping(true)
     await wait(620)
@@ -118,7 +118,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
     await runAutomation(false)
   }
 
-  const openPayment = (message: MessageV2) => {
+  const openPayment = (message: Message) => {
     if (!message.paymentUrl || !message.paymentAmount) return
     setPayment({ url: message.paymentUrl, amount: message.paymentAmount, concept: message.paymentConcept ?? '' })
   }
@@ -133,6 +133,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
   }
 
   const runAutomation = async (withDeposit: boolean) => {
+    const selectedTime = selectedTimeRef.current
     if (!selectedPlan || !selectedTime) return
     setAutomating(true)
     onProgressChange(2, false, { title: withDeposit ? 'Pago confirmado' : 'Preparando el pago', detail: withDeposit ? 'Bold · anticipo pagado por WhatsApp' : 'Bold · pago directo en el spa', tool: 'bold' })
@@ -142,7 +143,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
     await wait(820)
 
     onReservationCreated({
-      ...newReservationV2,
+      ...newReservation,
       service: selectedPlan.name,
       price: selectedPlan.price,
       time: selectedTime.replace('Hoy · ', '').replace('Mañana · ', ''),
@@ -159,7 +160,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
 
   const quickActions: { label: string; onClick: () => void }[] =
     step === 0 ? [{ label: 'Quiero conocer los planes', onClick: askPlans }]
-    : step === 1 ? plansV2.map((plan) => ({ label: `Reservar ${plan.name}`, onClick: () => selectPlan(plan) }))
+    : step === 1 ? plans.map((plan) => ({ label: `Reservar ${plan.name}`, onClick: () => selectPlan(plan) }))
       : step === 2 ? timeSlots.map((time) => ({ label: time, onClick: () => selectTime(time) }))
         : step === 3 ? [
             { label: 'Confirmar con anticipo', onClick: () => confirmBooking(true) },
@@ -168,7 +169,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
           : []
 
   return (
-    <section className="wa-wallpaper flex h-[620px] w-full min-w-0 max-w-[400px] flex-1 flex-col overflow-hidden rounded-[22px] shadow-[0_24px_60px_-24px_rgba(0,0,0,.55)] transition-all duration-300 sm:h-[650px] xl:h-[670px]">
+    <section className="wa-wallpaper flex h-[620px] w-full min-w-0 max-w-[400px] flex-1 flex-col overflow-hidden rounded-[22px] shadow-[0_24px_60px_-24px_rgba(0,0,0,.55)] transition-shadow duration-300 sm:h-[650px] xl:h-[670px]">
       <div className="flex h-[66px] shrink-0 items-center gap-3 bg-[#008069] px-4 py-3 shadow-[0_1px_4px_rgba(0,0,0,.25)] sm:px-[18px]">
         <div className="grid size-[38px] shrink-0 place-items-center rounded-full bg-white/15 text-white"><Leaf className="size-4" /></div>
         <div className="min-w-0 flex-1">
@@ -182,10 +183,10 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
         </div>
       </div>
 
-      <div ref={chatScrollRef} className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-4 py-3 sm:px-5">
+      <div ref={chatScrollRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-5">
         <div className="mx-auto max-w-[368px]">
-          {messages.map((message) => <MessageBubbleV2 key={message.id} message={message} onOpenPayment={openPayment} />)}
-          {typing && <TypingIndicatorV2 />}
+          {messages.map((message) => <MessageBubble key={message.id} message={message} onOpenPayment={openPayment} />)}
+          {typing && <TypingIndicator />}
         </div>
       </div>
 
@@ -206,7 +207,7 @@ export function ChatPanelV2({ onReservationCreated, onProgressChange }: Props) {
         </div>
       )}
 
-      <div className="v2-chat-input px-4 py-2.5 sm:px-5">
+      <div className="chat-input px-4 py-2.5 sm:px-5">
         <div className="mx-auto flex max-w-[368px] items-center gap-2 rounded-full bg-white px-3 py-1.5 shadow-sm">
           <input
             value=""
