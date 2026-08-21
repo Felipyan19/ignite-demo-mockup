@@ -1,4 +1,9 @@
-import { plans } from '../data/demoData'
+export type PlanOption = {
+  name: string
+  price: string
+  duration: string
+  description: string
+}
 
 export type Message = {
   id: number
@@ -6,6 +11,7 @@ export type Message = {
   kind?: 'text' | 'plans' | 'payment-link' | 'quote-document'
   text?: string
   time: string
+  plans?: PlanOption[]
   paymentUrl?: string
   paymentAmount?: string
   paymentConcept?: string
@@ -22,7 +28,7 @@ export function MessageBubble({ message, onOpenPayment }: { message: Message; on
   return (
     <div className={`mb-2.5 flex animate-message-in ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`rounded-[10px] px-2.5 pb-1.5 pt-2 text-[13.5px] leading-[1.45] shadow-[0_1px_1px_rgba(0,0,0,.08)] ${isUser ? 'max-w-[78%] rounded-[10px_10px_2px_10px] bg-[#d9fdd3] text-slate-900' : 'max-w-[82%] rounded-[10px_10px_10px_2px] bg-white text-[#111b21]'}`}>
-        {message.kind === 'plans' ? <PlansText /> : <p className="whitespace-pre-line">{message.text}</p>}
+        {message.kind === 'plans' ? <PlansText plans={message.plans ?? []} /> : <p className="whitespace-pre-line">{message.text}</p>}
         <div className="mt-[3px] flex items-center justify-end gap-1 text-black/40">
           <span className="text-[10.5px] leading-none">{message.time}</span>
           {isUser && <span className="text-[10.5px] leading-none text-[#53bdeb]">✓✓</span>}
@@ -54,7 +60,7 @@ function QuoteDocumentMessage({ message }: { message: Message }) {
   )
 }
 
-function PlansText() {
+function PlansText({ plans }: { plans: PlanOption[] }) {
   return (
     <div>
       <p>Estos son nuestros planes disponibles hoy:</p>

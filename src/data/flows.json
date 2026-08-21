@@ -1,0 +1,334 @@
+{
+  "agenda": {
+    "header": {
+      "title": "Harmony Spa",
+      "icon": "leaf",
+      "onlineText": "en línea",
+      "typingText": "escribiendo…"
+    },
+    "greeting": "Hola 👋 Soy el asistente de Harmony Spa. ¿Qué te gustaría consultar?",
+    "placeholder": {
+      "idle": "Elige una opción arriba para continuar",
+      "typing": "Harmony está respondiendo…",
+      "done": "La demo terminó. Mira el backoffice abajo."
+    },
+    "start": "start",
+    "steps": [
+      {
+        "id": "start",
+        "options": [
+          {
+            "id": "askPlans",
+            "label": "Quiero conocer los planes",
+            "sequence": [
+              { "type": "progress", "step": 0, "complete": false, "title": "Consultando información de Harmony", "detail": "Planes y servicios configurados por el negocio", "tool": "info" },
+              { "type": "message", "kind": "plans", "delay": 620, "plansStep": "choosePlan", "plansKey": "selectedPlan" },
+              { "type": "progress", "step": 0, "complete": false, "title": "Información mostrada", "detail": "Planes y servicios de Harmony disponibles en la conversación", "tool": "info" },
+              { "type": "goto", "step": "choosePlan" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "choosePlan",
+        "options": [
+          {
+            "id": "masaje",
+            "label": "Reservar Masaje relajante",
+            "userText": "Quiero reservar: Masaje relajante",
+            "data": { "selectedPlan": { "name": "Masaje relajante", "price": "$120.000", "duration": "50 min", "description": "Libera tensión con presión suave y aceites cálidos." } },
+            "captures": ["selectedPlan"],
+            "sequence": [
+              { "type": "progress", "step": 0, "complete": false, "title": "Servicio seleccionado", "detail": "{{selectedPlan.name}} · {{selectedPlan.duration}} · {{selectedPlan.price}}", "tool": "info" },
+              { "type": "message", "kind": "text", "delay": 620, "text": "Disponibilidad validada ✓ Para tu {{selectedPlan.name}} tengo estos horarios disponibles, ¿cuál te queda mejor?" },
+              { "type": "progress", "step": 1, "complete": false, "title": "Disponibilidad validada", "detail": "Google Calendar · 3 horarios disponibles", "tool": "calendar" },
+              { "type": "goto", "step": "chooseTime" }
+            ]
+          },
+          {
+            "id": "ritual",
+            "label": "Reservar Ritual en pareja",
+            "userText": "Quiero reservar: Ritual en pareja",
+            "data": { "selectedPlan": { "name": "Ritual en pareja", "price": "$260.000", "duration": "75 min", "description": "Experiencia doble con aromaterapia y copa de bienvenida." } },
+            "captures": ["selectedPlan"],
+            "sequence": [
+              { "type": "progress", "step": 0, "complete": false, "title": "Servicio seleccionado", "detail": "{{selectedPlan.name}} · {{selectedPlan.duration}} · {{selectedPlan.price}}", "tool": "info" },
+              { "type": "message", "kind": "text", "delay": 620, "text": "Disponibilidad validada ✓ Para tu {{selectedPlan.name}} tengo estos horarios disponibles, ¿cuál te queda mejor?" },
+              { "type": "progress", "step": 1, "complete": false, "title": "Disponibilidad validada", "detail": "Google Calendar · 3 horarios disponibles", "tool": "calendar" },
+              { "type": "goto", "step": "chooseTime" }
+            ]
+          },
+          {
+            "id": "jacuzzi",
+            "label": "Reservar Jacuzzi + masaje",
+            "userText": "Quiero reservar: Jacuzzi + masaje",
+            "data": { "selectedPlan": { "name": "Jacuzzi + masaje", "price": "$180.000", "duration": "60 min", "description": "Hidroterapia y masaje relajante en una sola sesión." } },
+            "captures": ["selectedPlan"],
+            "sequence": [
+              { "type": "progress", "step": 0, "complete": false, "title": "Servicio seleccionado", "detail": "{{selectedPlan.name}} · {{selectedPlan.duration}} · {{selectedPlan.price}}", "tool": "info" },
+              { "type": "message", "kind": "text", "delay": 620, "text": "Disponibilidad validada ✓ Para tu {{selectedPlan.name}} tengo estos horarios disponibles, ¿cuál te queda mejor?" },
+              { "type": "progress", "step": 1, "complete": false, "title": "Disponibilidad validada", "detail": "Google Calendar · 3 horarios disponibles", "tool": "calendar" },
+              { "type": "goto", "step": "chooseTime" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chooseTime",
+        "options": [
+          {
+            "id": "today-5",
+            "label": "Hoy · 5:00 PM",
+            "data": { "selectedTime": { "display": "Hoy · 5:00 PM", "time": "5:00 PM", "schedule": "Hoy" } },
+            "captures": ["selectedTime"],
+            "sequence": [
+              { "type": "progress", "step": 1, "complete": false, "title": "Horario seleccionado", "detail": "Google Calendar · {{selectedTime.display}}", "tool": "calendar" },
+              { "type": "message", "kind": "text", "delay": 820, "text": "Genial, te aparto {{selectedPlan.name}} {{selectedTime.display}}. Puedo dejar preparado un anticipo de {{selectedPlan.price}} con Bold para asegurar tu cupo, o puedes pagarlo directamente en el spa. ¿Cómo prefieres continuar?" },
+              { "type": "progress", "step": 2, "complete": false, "title": "Preparando el pago", "detail": "Bold · anticipo opcional listo para generar", "tool": "bold" },
+              { "type": "goto", "step": "confirmBooking" }
+            ]
+          },
+          {
+            "id": "today-630",
+            "label": "Hoy · 6:30 PM",
+            "data": { "selectedTime": { "display": "Hoy · 6:30 PM", "time": "6:30 PM", "schedule": "Hoy" } },
+            "captures": ["selectedTime"],
+            "sequence": [
+              { "type": "progress", "step": 1, "complete": false, "title": "Horario seleccionado", "detail": "Google Calendar · {{selectedTime.display}}", "tool": "calendar" },
+              { "type": "message", "kind": "text", "delay": 820, "text": "Genial, te aparto {{selectedPlan.name}} {{selectedTime.display}}. Puedo dejar preparado un anticipo de {{selectedPlan.price}} con Bold para asegurar tu cupo, o puedes pagarlo directamente en el spa. ¿Cómo prefieres continuar?" },
+              { "type": "progress", "step": 2, "complete": false, "title": "Preparando el pago", "detail": "Bold · anticipo opcional listo para generar", "tool": "bold" },
+              { "type": "goto", "step": "confirmBooking" }
+            ]
+          },
+          {
+            "id": "tomorrow-10",
+            "label": "Mañana · 10:00 AM",
+            "data": { "selectedTime": { "display": "Mañana · 10:00 AM", "time": "10:00 AM", "schedule": "Mañana" } },
+            "captures": ["selectedTime"],
+            "sequence": [
+              { "type": "progress", "step": 1, "complete": false, "title": "Horario seleccionado", "detail": "Google Calendar · {{selectedTime.display}}", "tool": "calendar" },
+              { "type": "message", "kind": "text", "delay": 820, "text": "Genial, te aparto {{selectedPlan.name}} {{selectedTime.display}}. Puedo dejar preparado un anticipo de {{selectedPlan.price}} con Bold para asegurar tu cupo, o puedes pagarlo directamente en el spa. ¿Cómo prefieres continuar?" },
+              { "type": "progress", "step": 2, "complete": false, "title": "Preparando el pago", "detail": "Bold · anticipo opcional listo para generar", "tool": "bold" },
+              { "type": "goto", "step": "confirmBooking" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "confirmBooking",
+        "options": [
+          {
+            "id": "withDeposit",
+            "label": "Confirmar con anticipo",
+            "sequence": [
+              { "type": "wait", "ms": 620, "showTyping": true },
+              { "type": "message", "kind": "payment-link", "paymentUrl": "https://checkout.bold.co/LNK_8F3KQ2N1", "paymentAmount": "{{selectedPlan.price}}", "paymentConcept": "Anticipo · {{selectedPlan.name}}" },
+              { "type": "progress", "step": 2, "complete": false, "title": "Link de pago enviado", "detail": "Bold · esperando que el cliente pague por WhatsApp", "tool": "bold" },
+              { "type": "goto", "step": "awaitPayment" }
+            ]
+          },
+          {
+            "id": "noDeposit",
+            "label": "Confirmar sin anticipo",
+            "sequence": [
+              { "type": "wait", "ms": 620, "showTyping": true },
+              { "type": "progress", "step": 2, "complete": false, "title": "Preparando el pago", "detail": "Bold · pago directo en el spa", "tool": "bold" },
+              { "type": "wait", "ms": 760 },
+              { "type": "progress", "step": 3, "complete": false, "title": "Registrando la operación", "detail": "Backoffice · cliente, reserva y confirmación", "tool": "crm" },
+              { "type": "wait", "ms": 820 },
+              { "type": "message", "kind": "text", "text": "¡Listo! Tu reserva de {{selectedPlan.name}} para {{selectedTime.display}} quedó confirmada ✅ Pagarás {{selectedPlan.price}} directamente en el spa. Te llegará la confirmación por WhatsApp." },
+              { "type": "progress", "step": 3, "complete": true, "title": "Operación completada", "detail": "Reserva registrada y confirmación preparada", "tool": "crm" },
+              { "type": "complete", "result": "reservation", "fields": { "id": "RES-2091", "customer": "Felipe Castaño", "service": "{{selectedPlan.name}}", "price": "{{selectedPlan.price}}", "time": "{{selectedTime.time}}", "schedule": "{{selectedTime.schedule}}", "isNew": true } }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "awaitPayment",
+        "placeholder": "Toca el link de pago para continuar",
+        "options": [],
+        "onPaid": [
+          { "type": "message", "kind": "text", "delay": 500, "text": "¡Pago aprobado! ✅ Bold confirmó tu anticipo de {{selectedPlan.price}} y tu cupo quedó asegurado." },
+          { "type": "progress", "step": 2, "complete": false, "title": "Pago confirmado", "detail": "Bold · anticipo pagado por WhatsApp", "tool": "bold" },
+          { "type": "wait", "ms": 760 },
+          { "type": "progress", "step": 3, "complete": false, "title": "Registrando la operación", "detail": "Backoffice · cliente, reserva y confirmación", "tool": "crm" },
+          { "type": "wait", "ms": 820 },
+          { "type": "message", "kind": "text", "text": "Tu reserva de {{selectedPlan.name}} quedó confirmada para {{selectedTime.display}}. Ya registramos tu pago con Bold, nos vemos pronto 💜" },
+          { "type": "progress", "step": 3, "complete": true, "title": "Operación completada", "detail": "Reserva registrada y confirmación preparada", "tool": "crm" },
+          { "type": "complete", "result": "reservation", "fields": { "id": "RES-2091", "customer": "Felipe Castaño", "service": "{{selectedPlan.name}}", "price": "{{selectedPlan.price}}", "time": "{{selectedTime.time}}", "schedule": "{{selectedTime.schedule}}", "isNew": true } }
+        ]
+      }
+    ]
+  },
+  "inventory": {
+    "header": {
+      "title": "Asistente de inventario",
+      "icon": "package-search",
+      "onlineText": "en línea",
+      "typingText": "escribiendo…"
+    },
+    "greeting": "Hola 👋 Soy el asistente de inventario. ¿Qué medicamento necesitas cotizar?",
+    "placeholder": {
+      "idle": "Elige una opción arriba para continuar",
+      "typing": "El asistente está respondiendo…",
+      "done": "La demostración terminó."
+    },
+    "start": "start",
+    "steps": [
+      {
+        "id": "start",
+        "options": [
+          {
+            "id": "requestProduct",
+            "label": "Cotizar acetaminofén",
+            "userText": "Necesito acetaminofén de 500 mg",
+            "sequence": [
+              { "type": "progress", "step": 0, "complete": false, "title": "Producto consultado", "detail": "Acetaminofén · 500 mg", "tool": "product" },
+              { "type": "message", "kind": "text", "delay": 620, "text": "Sí, tengo acetaminofén de 500 mg, caja por 100. ¿Cuántas unidades necesitas?" },
+              { "type": "goto", "step": "chooseQuantity" }
+            ]
+          },
+          {
+            "id": "requestUnavailable",
+            "label": "Consultar producto sin precio",
+            "userText": "Necesito cotizar un producto que no aparece en la lista",
+            "sequence": [
+              { "type": "progress", "step": 0, "complete": false, "title": "Producto por consultar", "detail": "El precio no está disponible en el catálogo", "tool": "product" },
+              { "type": "message", "kind": "text", "delay": 620, "text": "Claro. Dame un momento para consultar la disponibilidad y el precio con la persona encargada. Te mantendré informado." },
+              { "type": "progress", "step": 0, "complete": false, "title": "Consulta escalada", "detail": "Solicitud enviada a la persona encargada", "tool": "product" },
+              { "type": "end" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chooseQuantity",
+        "options": [
+          {
+            "id": "selectQuantity",
+            "label": "100 unidades",
+            "userText": "Necesito 100 unidades",
+            "sequence": [
+              { "type": "progress", "step": 0, "complete": false, "title": "Solicitud completa", "detail": "Acetaminofén 500 mg · 100 unidades", "tool": "product" },
+              { "type": "message", "kind": "text", "delay": 620, "text": "Perfecto. Para preparar el precio correcto, ¿eres cliente nuevo o ya estás registrado?" },
+              { "type": "progress", "step": 1, "complete": false, "title": "Identificando al cliente", "detail": "Validación de datos y condición comercial", "tool": "customer" },
+              { "type": "goto", "step": "chooseCustomer" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "chooseCustomer",
+        "options": [
+          {
+            "id": "newCustomer",
+            "label": "Soy cliente nuevo",
+            "sequence": [
+              { "type": "message", "kind": "text", "delay": 620, "text": "Con gusto. Para crear tu cotización formal necesito tu nombre, datos de contacto, NIT, RUT y Cámara de Comercio." },
+              { "type": "progress", "step": 1, "complete": false, "title": "Solicitando datos", "detail": "Nombre, contacto, NIT, RUT y Cámara de Comercio", "tool": "customer" },
+              { "type": "goto", "step": "provideNewCustomerData" }
+            ]
+          },
+          {
+            "id": "registeredCustomer",
+            "label": "Ya estoy registrado",
+            "data": { "customerName": "Javier" },
+            "captures": ["customerName"],
+            "sequence": [
+              { "type": "message", "kind": "text", "delay": 620, "text": "Hola, {{customerName}}. Ya encontré tus datos. ¿Deseas pagar a 30 días o entre 30 y 90 días?" },
+              { "type": "progress", "step": 1, "complete": false, "title": "Cliente reconocido", "detail": "{{customerName}} · datos recuperados, sin volver a solicitarlos", "tool": "customer" },
+              { "type": "goto", "step": "choosePaymentTerm" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "provideNewCustomerData",
+        "options": [
+          {
+            "id": "submitNewCustomerData",
+            "label": "Compartir datos",
+            "userText": "Compartir datos para la cotización",
+            "data": { "customerName": "Suministros Andina", "paymentTerm": { "total": "$266.000", "termLabel": "Primer pedido" } },
+            "captures": ["customerName", "paymentTerm"],
+            "sequence": [
+              { "type": "progress", "step": 1, "complete": false, "title": "Cliente registrado", "detail": "Datos comerciales recibidos correctamente", "tool": "customer" },
+              { "type": "progress", "step": 2, "complete": false, "title": "Calculando cotización", "detail": "Precio calculado según la condición comercial", "tool": "quote" },
+              { "type": "message", "kind": "text", "delay": 760, "text": "Esta es tu cotización:\n\nAcetaminofén 500 mg · 100 unidades\nValor total: {{paymentTerm.total}}\n\n¿Deseas recibir la cotización formal en PDF?" },
+              { "type": "progress", "step": 2, "complete": false, "title": "Cotización presentada", "detail": "100 unidades · total {{paymentTerm.total}}", "tool": "quote" },
+              { "type": "goto", "step": "choosePdf" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "choosePaymentTerm",
+        "options": [
+          {
+            "id": "term30",
+            "label": "Pago a 30 días",
+            "data": { "paymentTerm": { "total": "$300.000", "termLabel": "Pago a 30 días" } },
+            "captures": ["paymentTerm"],
+            "sequence": [
+              { "type": "progress", "step": 2, "complete": false, "title": "Calculando cotización", "detail": "Precio calculado según la condición comercial", "tool": "quote" },
+              { "type": "message", "kind": "text", "delay": 760, "text": "Esta es tu cotización:\n\nAcetaminofén 500 mg · 100 unidades\nValor total: {{paymentTerm.total}}\n\n¿Deseas recibir la cotización formal en PDF?" },
+              { "type": "progress", "step": 2, "complete": false, "title": "Cotización presentada", "detail": "100 unidades · total {{paymentTerm.total}}", "tool": "quote" },
+              { "type": "goto", "step": "choosePdf" }
+            ]
+          },
+          {
+            "id": "term90",
+            "label": "Pago entre 30 y 90 días",
+            "data": { "paymentTerm": { "total": "$326.000", "termLabel": "Pago entre 30 y 90 días" } },
+            "captures": ["paymentTerm"],
+            "sequence": [
+              { "type": "progress", "step": 2, "complete": false, "title": "Calculando cotización", "detail": "Precio calculado según la condición comercial", "tool": "quote" },
+              { "type": "message", "kind": "text", "delay": 760, "text": "Esta es tu cotización:\n\nAcetaminofén 500 mg · 100 unidades\nValor total: {{paymentTerm.total}}\n\n¿Deseas recibir la cotización formal en PDF?" },
+              { "type": "progress", "step": 2, "complete": false, "title": "Cotización presentada", "detail": "100 unidades · total {{paymentTerm.total}}", "tool": "quote" },
+              { "type": "goto", "step": "choosePdf" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "choosePdf",
+        "options": [
+          {
+            "id": "generatePdf",
+            "label": "Generar PDF",
+            "userText": "Sí, generar cotización formal",
+            "sequence": [
+              { "type": "message", "kind": "quote-document", "delay": 700, "documentName": "Cotización-COT-1048.pdf", "documentTotal": "{{paymentTerm.total}}" },
+              { "type": "progress", "step": 2, "complete": false, "title": "PDF generado", "detail": "Cotización formal enviada por WhatsApp", "tool": "quote" },
+              { "type": "goto", "step": "confirmOrder" }
+            ]
+          },
+          {
+            "id": "continueWithoutPdf",
+            "label": "Continuar sin PDF",
+            "sequence": [
+              { "type": "message", "kind": "text", "delay": 620, "text": "Entendido. ¿Confirmas que deseas realizar el pedido con esta cotización?" },
+              { "type": "goto", "step": "confirmOrder" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "confirmOrder",
+        "options": [
+          {
+            "id": "confirmOrderAction",
+            "label": "Confirmar pedido",
+            "userText": "Confirmar pedido",
+            "sequence": [
+              { "type": "progress", "step": 3, "complete": false, "title": "Creando orden previa", "detail": "Cotización aceptada por el cliente", "tool": "order" },
+              { "type": "message", "kind": "text", "delay": 820, "text": "¡Listo! He tomado tu pedido, preparé la orden de compra previa y la envié a la persona encargada. Te mantendré informado." },
+              { "type": "progress", "step": 4, "complete": true, "title": "Pedido registrado en backoffice", "detail": "Orden previa · {{paymentTerm.total}} · pendiente de gestión", "tool": "crm" },
+              { "type": "complete", "result": "order", "fields": { "id": "ORD-4041", "customer": "{{customerName}}", "product": "Acetaminofén 500 mg", "quantity": "100 unidades", "total": "{{paymentTerm.total}}", "term": "{{paymentTerm.termLabel}}", "isNew": true } }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

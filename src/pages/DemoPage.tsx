@@ -2,11 +2,14 @@ import { CalendarDays, PackageSearch, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { BackofficeLive } from '../components/BackofficeLive'
 import { BrandLogo } from '../components/BrandLogo'
-import { ChatPanel } from '../components/ChatPanel'
+import { FlowChatPanel, type FlowResult } from '../components/FlowChatPanel'
 import { InventoryBackofficeLive } from '../components/InventoryBackofficeLive'
-import { InventoryChatPanel } from '../components/InventoryChatPanel'
 import { VerticalProgress } from '../components/VerticalProgress'
 import type { Order, Reservation } from '../data/demoData'
+import flows from '../data/flows.json'
+import type { FlowsConfig } from '../data/flowTypes'
+
+const typedFlows = flows as unknown as FlowsConfig
 
 export default function DemoPage() {
   const [demoType, setDemoType] = useState<'agenda' | 'inventory'>('agenda')
@@ -65,6 +68,11 @@ export default function DemoPage() {
     setResetKey((key) => key + 1)
   }
 
+  const handleComplete = (result: FlowResult) => {
+    if (result.type === 'reservation') setReservation(result.payload)
+    else setOrder(result.payload)
+  }
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#070b18] text-white">
       <div className="pointer-events-none fixed inset-0">
@@ -84,7 +92,7 @@ export default function DemoPage() {
                   operación completa.
                 </span>
               </h1>
-              <p className="mt-2 max-w-[630px] text-[15.5px] leading-[1.6] text-white/60">
+              <p className="mt-2 max-w-[630px] text-[15.3px] leading-[1.6] text-white/60">
                 Elige una experiencia y pruébala como un cliente. Descubre cómo Ignite conecta cada conversación con las herramientas necesarias para ejecutar el proceso de principio a fin.
               </p>
             </div>
@@ -106,26 +114,16 @@ export default function DemoPage() {
               </button>
             </div>
 
-            <div className="mt-5 flex flex-row items-start gap-2 sm:gap-5 md:gap-7">
-              {demoType === 'agenda' ? (
-                <ChatPanel
-                  key={`agenda-${resetKey}`}
-                  onReservationCreated={setReservation}
-                  onProgressChange={(step, complete) => {
-                    setProgressStep(step)
-                    setProgressComplete(complete)
-                  }}
-                />
-              ) : (
-                <InventoryChatPanel
-                  key={`inventory-${resetKey}`}
-                  onOrderCreated={setOrder}
-                  onProgressChange={(step, complete) => {
-                    setProgressStep(step)
-                    setProgressComplete(complete)
-                  }}
-                />
-              )}
+            <div className="mt-5 flex flex-row items-start gap-4 sm:gap-5 md:gap-7">
+              <FlowChatPanel
+                key={`${demoType}-${resetKey}`}
+                flow={typedFlows[demoType]}
+                onComplete={handleComplete}
+                onProgressChange={(step, complete) => {
+                  setProgressStep(step)
+                  setProgressComplete(complete)
+                }}
+              />
               <div className="h-[620px] w-11 shrink-0 pt-1 sm:h-[650px] sm:w-[190px] md:w-[210px] xl:h-[670px]">
                 <VerticalProgress activeStep={progressStep} complete={progressComplete} variant={demoType} />
               </div>
