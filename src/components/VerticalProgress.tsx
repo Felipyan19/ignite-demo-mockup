@@ -26,8 +26,10 @@ const inventoryStages: { label: string; helper: string; tool: ProgressTool }[] =
 
 export function VerticalProgress({ activeStep, complete, variant = 'agenda' }: { activeStep: number; complete: boolean; variant?: 'agenda' | 'inventory' }) {
   const stages = variant === 'inventory' ? inventoryStages : agendaStages
-  const progress = complete ? 100 : (activeStep / (stages.length - 1)) * 100
-  const progressValue = complete ? 100 : Math.round(((activeStep + 1) / stages.length) * 100)
+  const safeActiveStep = Math.min(Math.max(activeStep, 0), stages.length - 1)
+  const progress = complete ? 100 : (safeActiveStep / (stages.length - 1)) * 100
+  const progressValue = complete ? 100 : Math.round(((safeActiveStep + 1) / stages.length) * 100)
+  const currentStage = stages[safeActiveStep]
 
   return (
     <div
@@ -37,8 +39,9 @@ export function VerticalProgress({ activeStep, complete, variant = 'agenda' }: {
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={progressValue}
+      aria-valuetext={complete ? 'Operación completada' : `${currentStage.label}: ${currentStage.helper}`}
     >
-      <div className="absolute left-4 top-4 bottom-4 w-[2px] overflow-visible rounded-full bg-white/[0.07]">
+      <div className="absolute left-4 top-4 bottom-4 w-[2px] overflow-visible rounded-full bg-white/[0.07]" aria-hidden="true">
         {[25, 50, 75].map((mark) => (
           <span key={mark} className="absolute -left-[3px] h-px w-2 rounded-full bg-white/15" style={{ top: `${mark}%` }} />
         ))}
@@ -51,13 +54,15 @@ export function VerticalProgress({ activeStep, complete, variant = 'agenda' }: {
       </div>
 
       {stages.map((stage, index) => {
-        const done = complete || index < activeStep
-        const active = !complete && index === activeStep
+        const done = complete || index < safeActiveStep
+        const active = !complete && index === safeActiveStep
         const lit = done || active
 
         return (
           <div key={stage.label} className="relative flex items-center gap-3 pl-0">
-            <StageIcon tool={stage.tool} lit={lit} active={active} />
+            <span aria-hidden="true">
+              <StageIcon tool={stage.tool} lit={lit} active={active} />
+            </span>
             <div className="hidden min-w-0 sm:block">
               <p className={`text-[11px] font-extrabold transition-colors duration-300 sm:text-xs ${lit ? 'text-white' : 'text-slate-500'}`}>
                 {stage.label}

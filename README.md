@@ -27,14 +27,17 @@ El objetivo no es fingir que hay un backend: toda la UI indica claramente que se
 ## Ejecutar
 
 ```bash
-npm install
-npm run dev
+corepack enable
+yarn install
+yarn dev
 ```
+
+El proyecto fija su versión de Yarn en `package.json`. Corepack se encarga de usarla automáticamente.
 
 ## Build
 
 ```bash
-npm run build
+yarn build
 ```
 
 ## Principios del demo

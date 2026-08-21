@@ -85,8 +85,9 @@ function PaymentLinkMessage({ message, onOpen }: { message: Message; onOpen: () 
   return (
     <div className="mb-2.5 flex animate-message-in justify-start">
       <button
+        type="button"
         onClick={onOpen}
-        className="max-w-[82%] rounded-[10px_10px_10px_2px] bg-white px-2.5 pb-1.5 pt-2 text-left text-[13.5px] leading-[1.45] text-[#111b21] shadow-[0_1px_1px_rgba(0,0,0,.08)] transition hover:brightness-[0.98]"
+        className="max-w-[82%] rounded-[10px_10px_10px_2px] bg-white px-2.5 pb-1.5 pt-2 text-left text-[13.5px] leading-[1.45] text-[#111b21] shadow-[0_1px_1px_rgba(0,0,0,.08)] transition hover:brightness-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#efeae2]"
       >
         <p>Pagar {message.paymentConcept} · {message.paymentAmount}</p>
         <p className="mt-0.5 break-all text-[#0a7cff] underline">{message.paymentUrl}</p>
@@ -100,8 +101,8 @@ function PaymentLinkMessage({ message, onOpen }: { message: Message; onOpen: () 
 
 export function TypingIndicator() {
   return (
-    <div className="mb-2.5 flex animate-in-up justify-start">
-      <div className="flex h-9 items-center gap-1 rounded-[10px] bg-white px-3.5 shadow-[0_1px_1px_rgba(0,0,0,.08)]" aria-label="Harmony está escribiendo">
+    <div className="mb-2.5 flex animate-in-up justify-start" role="status" aria-live="polite" aria-label="Harmony está escribiendo">
+      <div className="flex h-9 items-center gap-1 rounded-[10px] bg-white px-3.5 shadow-[0_1px_1px_rgba(0,0,0,.08)]" aria-hidden="true">
         <span className="size-1.5 animate-pulse rounded-full bg-slate-400" />
         <span className="size-1.5 animate-pulse rounded-full bg-slate-400 [animation-delay:120ms]" />
         <span className="size-1.5 animate-pulse rounded-full bg-slate-400 [animation-delay:240ms]" />

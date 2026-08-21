@@ -4,3 +4,11 @@ dist
 .env.*
 .DS_Store
 *.log
+
+### IA Agents
+.agents/
+.claude/
+skills-lock.json
+
+# Yarn local install state (the lockfile and .yarnrc.yml stay versioned)
+.yarn/*

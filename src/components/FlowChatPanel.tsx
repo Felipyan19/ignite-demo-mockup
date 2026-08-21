@@ -9,7 +9,24 @@ import type { JourneyContext } from './VerticalProgress'
 
 const headerIcons = { leaf: Leaf, 'package-search': PackageSearch } as const
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+const wait = (ms: number, signal: AbortSignal) => new Promise<boolean>((resolve) => {
+  if (signal.aborted) {
+    resolve(false)
+    return
+  }
+
+  const finish = (completed: boolean) => {
+    signal.removeEventListener('abort', abort)
+    resolve(completed)
+  }
+  const timer = window.setTimeout(() => finish(true), ms)
+  const abort = () => {
+    window.clearTimeout(timer)
+    finish(false)
+  }
+
+  signal.addEventListener('abort', abort, { once: true })
+})
 const timeNow = () => new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false })
 
 function resolvePath(vars: Record<string, unknown>, path: string): unknown {
@@ -57,6 +74,17 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
   const [payment, setPayment] = useState<{ url: string; amount: string; concept: string } | null>(null)
   const chatScrollRef = useRef<HTMLDivElement | null>(null)
   const varsRef = useRef<Record<string, unknown>>({})
+  const lifecycleRef = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    lifecycleRef.current = controller
+
+    return () => {
+      controller.abort()
+      if (lifecycleRef.current === controller) lifecycleRef.current = null
+    }
+  }, [])
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -72,11 +100,16 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
 
   const resolvePlans = (stepId: string, key: string) => {
     const step = flow.steps.find((item) => item.id === stepId)
-    return (step?.options ?? []).map((option) => option.data?.[key]).filter(Boolean) as Message['plans']
+    return (step?.options ?? []).flatMap((option) => {
+      const plan = option.data?.[key]
+      return plan ? [plan] : []
+    }) as Message['plans']
   }
 
-  const runBeats = async (beats: FlowBeat[]) => {
+  const runBeats = async (beats: FlowBeat[], signal: AbortSignal) => {
     for (const beat of beats) {
+      if (signal.aborted) return
+
       if (beat.type === 'progress') {
         onProgressChange(beat.step, beat.complete, {
           title: interpolate(beat.title, varsRef.current),
@@ -88,7 +121,7 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
 
       if (beat.type === 'wait') {
         if (beat.showTyping) setTyping(true)
-        await wait(beat.ms)
+        if (!await wait(beat.ms, signal)) return
         if (beat.showTyping) setTyping(false)
         continue
       }
@@ -96,7 +129,7 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
       if (beat.type === 'message') {
         if (beat.delay) {
           setTyping(true)
-          await wait(beat.delay)
+          if (!await wait(beat.delay, signal)) return
         }
 
         if (beat.kind === 'plans') {
@@ -146,6 +179,9 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
 
   const choose = async (option: FlowOption) => {
     if (busy || done) return
+    const controller = lifecycleRef.current
+    if (!controller) return
+
     appendMessage('user', { kind: 'text', text: option.userText ?? option.label })
 
     if (option.captures?.length) {
@@ -155,8 +191,11 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
     }
 
     setBusy(true)
-    await runBeats(option.sequence)
-    setBusy(false)
+    try {
+      await runBeats(option.sequence, controller.signal)
+    } finally {
+      setBusy(false)
+    }
   }
 
   const openPayment = (message: Message) => {
@@ -168,9 +207,15 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
     setPayment(null)
     const step = flow.steps.find((item) => item.id === currentStepId)
     if (!step?.onPaid) return
+    const controller = lifecycleRef.current
+    if (!controller) return
+
     setBusy(true)
-    await runBeats(step.onPaid)
-    setBusy(false)
+    try {
+      await runBeats(step.onPaid, controller.signal)
+    } finally {
+      setBusy(false)
+    }
   }
 
   const currentStep: FlowStep | undefined = flow.steps.find((item) => item.id === currentStepId)
@@ -185,19 +230,26 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
   return (
     <section className="wa-wallpaper flex h-[620px] w-full min-w-0 max-w-[400px] flex-1 flex-col overflow-hidden rounded-[22px] shadow-[0_24px_60px_-24px_rgba(0,0,0,.55)] transition-shadow duration-300 sm:h-[650px] xl:h-[670px]">
       <div className="flex h-[66px] shrink-0 items-center gap-3 bg-[#008069] px-4 py-3 shadow-[0_1px_4px_rgba(0,0,0,.25)] sm:px-[18px]">
-        <div className="grid size-[38px] shrink-0 place-items-center rounded-full bg-white/15 text-white"><HeaderIcon className="size-4" /></div>
+        <div className="grid size-[38px] shrink-0 place-items-center rounded-full bg-white/15 text-white"><HeaderIcon className="size-4" aria-hidden="true" /></div>
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-[13px] font-extrabold text-white sm:text-sm">{flow.header.title}</h2>
-          <p className="mt-px text-[11.5px] text-white/70" aria-live="polite">{typing ? flow.header.typingText : flow.header.onlineText}</p>
+          <p className="mt-px text-[11.5px] text-white/85" aria-live="polite">{typing ? flow.header.typingText : flow.header.onlineText}</p>
         </div>
         <div className="flex shrink-0 items-center gap-3.5 text-white/90 sm:gap-4">
-          <Video className="size-[19px]" strokeWidth={1.75} />
-          <Phone className="size-[16px]" strokeWidth={1.75} />
-          <MoreVertical className="size-[18px]" strokeWidth={1.75} />
+          <Video className="size-[19px]" strokeWidth={1.75} aria-hidden="true" />
+          <Phone className="size-[16px]" strokeWidth={1.75} aria-hidden="true" />
+          <MoreVertical className="size-[18px]" strokeWidth={1.75} aria-hidden="true" />
         </div>
       </div>
 
-      <div ref={chatScrollRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-5">
+      <div
+        ref={chatScrollRef}
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-5"
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions text"
+        aria-label={`Conversación con ${flow.header.title}`}
+      >
         <div className="mx-auto max-w-[368px]">
           {messages.map((message) => <MessageBubble key={message.id} message={message} onOpenPayment={openPayment} />)}
           {typing && <TypingIndicator />}
@@ -209,9 +261,10 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
           <div className="mx-auto flex max-w-[368px] flex-wrap justify-center gap-2">
             {options.map((option) => (
               <button
+                type="button"
                 key={option.id}
                 onClick={() => choose(option)}
-                className="inline-flex min-h-[34px] animate-in-up items-center rounded-full bg-white px-4 py-1.5 text-[12.5px] font-medium text-[#111b21] shadow-[0_1px_3px_rgba(0,0,0,.2)] transition hover:bg-[#f5f5f5] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-10 animate-in-up items-center rounded-full bg-white px-4 py-1.5 text-[12.5px] font-semibold text-[#111b21] shadow-[0_1px_3px_rgba(0,0,0,.2)] transition-[background-color,transform,box-shadow] duration-150 hover:bg-[#f5f5f5] hover:shadow-[0_3px_10px_rgba(0,0,0,.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007a64] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f1e9dd] active:scale-[0.98]"
               >
                 {option.label}
               </button>
@@ -226,10 +279,11 @@ export function FlowChatPanel({ flow, onComplete, onProgressChange }: Props) {
             value=""
             readOnly
             disabled
+            aria-label="Entrada de mensajes deshabilitada en esta demostración"
             placeholder={placeholderText}
             className="min-w-0 flex-1 cursor-not-allowed bg-transparent px-1 py-2 text-[13px] text-slate-800 outline-none placeholder:text-slate-400 sm:text-sm"
           />
-          <button disabled className="grid size-9 shrink-0 place-items-center rounded-full bg-[#00a884] text-white" aria-label="Enviar mensaje">
+          <button type="button" disabled className="grid size-9 shrink-0 place-items-center rounded-full bg-[#00a884] text-white disabled:opacity-70" aria-label="Enviar mensaje deshabilitado en esta demostración">
             <WhatsAppSendIcon className="size-4" />
           </button>
         </div>
