@@ -1,7 +1,7 @@
-import { Flame, Info } from 'lucide-react'
+import { ClipboardCheck, FileText, Flame, Info, PackageSearch, UserRoundCheck } from 'lucide-react'
 import { IntegrationLogo } from './IntegrationLogo'
 
-export type ProgressTool = 'info' | 'calendar' | 'bold' | 'crm'
+export type ProgressTool = 'info' | 'calendar' | 'bold' | 'crm' | 'product' | 'customer' | 'quote' | 'order'
 
 export type JourneyContext = {
   title: string
@@ -9,14 +9,22 @@ export type JourneyContext = {
   tool: ProgressTool
 }
 
-const stages: { label: string; helper: string; tool: ProgressTool }[] = [
+const agendaStages: { label: string; helper: string; tool: ProgressTool }[] = [
   { label: 'Información', helper: 'Planes y servicios', tool: 'info' },
   { label: 'Agenda', helper: 'Google Calendar', tool: 'calendar' },
   { label: 'Pago', helper: 'Bold', tool: 'bold' },
   { label: 'Backoffice', helper: 'Operación', tool: 'crm' },
 ]
 
-export function VerticalProgress({ activeStep, complete }: { activeStep: number; complete: boolean }) {
+const inventoryStages: { label: string; helper: string; tool: ProgressTool }[] = [
+  { label: 'Solicitud', helper: 'Producto y cantidad', tool: 'product' },
+  { label: 'Cliente', helper: 'Datos comerciales', tool: 'customer' },
+  { label: 'Cotización', helper: 'Precio y PDF', tool: 'quote' },
+  { label: 'Pedido', helper: 'Orden previa', tool: 'order' },
+]
+
+export function VerticalProgress({ activeStep, complete, variant = 'agenda' }: { activeStep: number; complete: boolean; variant?: 'agenda' | 'inventory' }) {
+  const stages = variant === 'inventory' ? inventoryStages : agendaStages
   const progress = complete ? 100 : (activeStep / (stages.length - 1)) * 100
   const progressValue = complete ? 100 : Math.round(((activeStep + 1) / stages.length) * 100)
 
@@ -83,9 +91,31 @@ function StageIcon({ tool, lit, active }: { tool: ProgressTool; lit: boolean; ac
     )
   }
 
-  return (
-    <div className={`relative z-[1] grid size-8 shrink-0 place-items-center rounded-full transition-all duration-300 ${ring} ${lit ? 'shadow-[0_0_0_4px_rgba(124,58,237,.10)]' : 'opacity-35 grayscale'}`}>
-      <IntegrationLogo name={tool} size="sm" />
-    </div>
-  )
+  const InventoryIcon = tool === 'product'
+    ? PackageSearch
+    : tool === 'customer'
+      ? UserRoundCheck
+      : tool === 'quote'
+        ? FileText
+        : tool === 'order'
+          ? ClipboardCheck
+          : null
+
+  if (InventoryIcon) {
+    return (
+      <div className={`relative z-[1] grid size-8 shrink-0 place-items-center rounded-full border transition-all duration-300 ${ring} ${lit ? 'border-violet-400/70 bg-violet-500/15 text-violet-200 shadow-[0_0_0_4px_rgba(124,58,237,.10)]' : 'border-white/10 bg-[#0c1020] text-slate-600'}`}>
+        <InventoryIcon className="size-3.5" />
+      </div>
+    )
+  }
+
+  if (tool === 'calendar' || tool === 'bold') {
+    return (
+      <div className={`relative z-[1] grid size-8 shrink-0 place-items-center rounded-full transition-all duration-300 ${ring} ${lit ? 'shadow-[0_0_0_4px_rgba(124,58,237,.10)]' : 'opacity-35 grayscale'}`}>
+        <IntegrationLogo name={tool} size="sm" />
+      </div>
+    )
+  }
+
+  return null
 }

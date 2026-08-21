@@ -3,18 +3,21 @@ import { plans } from '../data/demoData'
 export type Message = {
   id: number
   role: 'assistant' | 'user'
-  kind?: 'text' | 'plans' | 'payment-link'
+  kind?: 'text' | 'plans' | 'payment-link' | 'quote-document'
   text?: string
   time: string
   paymentUrl?: string
   paymentAmount?: string
   paymentConcept?: string
+  documentName?: string
+  documentTotal?: string
 }
 
 export function MessageBubble({ message, onOpenPayment }: { message: Message; onOpenPayment?: (message: Message) => void }) {
   const isUser = message.role === 'user'
 
   if (message.kind === 'payment-link') return <PaymentLinkMessage message={message} onOpen={() => onOpenPayment?.(message)} />
+  if (message.kind === 'quote-document') return <QuoteDocumentMessage message={message} />
 
   return (
     <div className={`mb-2.5 flex animate-message-in ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -23,6 +26,28 @@ export function MessageBubble({ message, onOpenPayment }: { message: Message; on
         <div className="mt-[3px] flex items-center justify-end gap-1 text-black/40">
           <span className="text-[10.5px] leading-none">{message.time}</span>
           {isUser && <span className="text-[10.5px] leading-none text-[#53bdeb]">✓✓</span>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function QuoteDocumentMessage({ message }: { message: Message }) {
+  return (
+    <div className="mb-2.5 flex animate-message-in justify-start">
+      <div className="max-w-[82%] rounded-[10px_10px_10px_2px] bg-white px-2.5 pb-1.5 pt-2 text-[13.5px] leading-[1.45] text-[#111b21] shadow-[0_1px_1px_rgba(0,0,0,.08)]">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+          <div className="flex items-start gap-2.5">
+            <span className="grid size-8 shrink-0 place-items-center rounded-md bg-red-50 text-[11px] font-extrabold text-red-600">PDF</span>
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-slate-900">{message.documentName}</p>
+              <p className="mt-0.5 text-[11.5px] text-slate-500">Cotización formal · {message.documentTotal}</p>
+            </div>
+          </div>
+        </div>
+        <p className="mt-2">Aquí tienes tu cotización formal con el detalle de productos y el valor total.</p>
+        <div className="mt-[3px] flex items-center justify-end gap-1 text-black/40">
+          <span className="text-[10.5px] leading-none">{message.time}</span>
         </div>
       </div>
     </div>

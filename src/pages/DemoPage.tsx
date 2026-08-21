@@ -1,12 +1,14 @@
-import { RotateCcw } from 'lucide-react'
+import { CalendarDays, PackageSearch, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { BackofficeLive } from '../components/BackofficeLive'
 import { BrandLogo } from '../components/BrandLogo'
 import { ChatPanel } from '../components/ChatPanel'
+import { InventoryChatPanel } from '../components/InventoryChatPanel'
 import { VerticalProgress } from '../components/VerticalProgress'
 import type { Reservation } from '../data/demoData'
 
 export default function DemoPage() {
+  const [demoType, setDemoType] = useState<'agenda' | 'inventory'>('agenda')
   const [progressStep, setProgressStep] = useState(0)
   const [progressComplete, setProgressComplete] = useState(false)
   const [reservation, setReservation] = useState<Reservation | null>(null)
@@ -50,6 +52,14 @@ export default function DemoPage() {
     setResetKey((key) => key + 1)
   }
 
+  const selectDemo = (type: 'agenda' | 'inventory') => {
+    setDemoType(type)
+    setProgressStep(0)
+    setProgressComplete(false)
+    setReservation(null)
+    setResetKey((key) => key + 1)
+  }
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#070b18] text-white">
       <div className="pointer-events-none fixed inset-0">
@@ -70,26 +80,53 @@ export default function DemoPage() {
                 </span>
               </h1>
               <p className="mt-2 max-w-[630px] text-[15.5px] leading-[1.6] text-white/60">
-                Pruébalo como un cliente: consulta un servicio, elige un horario y mira cómo Ignite conecta la conversación con agenda, pagos y backoffice para ejecutar el proceso de principio a fin.
+                Elige una experiencia y pruébala como un cliente. Descubre cómo Ignite conecta cada conversación con las herramientas necesarias para ejecutar el proceso de principio a fin.
               </p>
             </div>
 
+            <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/[0.035] p-1.5" role="group" aria-label="Seleccionar demostración">
+              <button
+                onClick={() => selectDemo('agenda')}
+                aria-pressed={demoType === 'agenda'}
+                className={`flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition sm:text-sm ${demoType === 'agenda' ? 'bg-violet-500 text-white shadow-[0_8px_24px_rgba(124,58,237,.28)]' : 'text-slate-400 hover:bg-white/[0.05] hover:text-white'}`}
+              >
+                <CalendarDays className="size-4" /> Agenda
+              </button>
+              <button
+                onClick={() => selectDemo('inventory')}
+                aria-pressed={demoType === 'inventory'}
+                className={`flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition sm:text-sm ${demoType === 'inventory' ? 'bg-violet-500 text-white shadow-[0_8px_24px_rgba(124,58,237,.28)]' : 'text-slate-400 hover:bg-white/[0.05] hover:text-white'}`}
+              >
+                <PackageSearch className="size-4" /> Inventario
+              </button>
+            </div>
+
             <div className="mt-5 flex flex-row items-start gap-2 sm:gap-5 md:gap-7">
-              <ChatPanel
-                key={resetKey}
-                onReservationCreated={setReservation}
-                onProgressChange={(step, complete) => {
-                  setProgressStep(step)
-                  setProgressComplete(complete)
-                }}
-              />
+              {demoType === 'agenda' ? (
+                <ChatPanel
+                  key={`agenda-${resetKey}`}
+                  onReservationCreated={setReservation}
+                  onProgressChange={(step, complete) => {
+                    setProgressStep(step)
+                    setProgressComplete(complete)
+                  }}
+                />
+              ) : (
+                <InventoryChatPanel
+                  key={`inventory-${resetKey}`}
+                  onProgressChange={(step, complete) => {
+                    setProgressStep(step)
+                    setProgressComplete(complete)
+                  }}
+                />
+              )}
               <div className="h-[620px] w-11 shrink-0 pt-1 sm:h-[650px] sm:w-[190px] md:w-[210px] xl:h-[670px]">
-                <VerticalProgress activeStep={progressStep} complete={progressComplete} />
+                <VerticalProgress activeStep={progressStep} complete={progressComplete} variant={demoType} />
               </div>
             </div>
           </div>
 
-          {reservation && (
+          {demoType === 'agenda' && reservation && (
             <div
               ref={backofficeRef}
               className="result-band -mx-4 mt-14 px-4 pt-12 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10"
