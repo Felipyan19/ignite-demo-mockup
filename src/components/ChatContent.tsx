@@ -55,19 +55,12 @@ function PaymentLinkMessage({ message, onOpen }: { message: Message; onOpen: () 
     <div className="mb-2.5 flex animate-message-in justify-start">
       <button
         onClick={onOpen}
-        className="w-full max-w-[82%] overflow-hidden rounded-[10px_10px_10px_2px] bg-white text-left shadow-[0_1px_1px_rgba(0,0,0,.08)] transition hover:brightness-[0.98]"
+        className="max-w-[82%] rounded-[10px_10px_10px_2px] bg-white px-2.5 pb-1.5 pt-2 text-left text-[13.5px] leading-[1.45] text-[#111b21] shadow-[0_1px_1px_rgba(0,0,0,.08)] transition hover:brightness-[0.98]"
       >
-        <div className="flex items-center gap-2.5 bg-[#0a0a0a] px-3 py-3">
-          <div className="grid size-8 shrink-0 place-items-center rounded-md bg-[#ffc700] text-[13px] font-black text-black">B</div>
-          <div className="min-w-0">
-            <p className="truncate text-[12.5px] font-bold text-white">Bold · Pago seguro</p>
-            <p className="truncate text-[10.5px] text-white/60">Tarjeta, PSE o Nequi</p>
-          </div>
-        </div>
-        <div className="px-2.5 pb-1.5 pt-2 text-[13.5px] leading-[1.45] text-[#111b21]">
-          <p className="font-semibold">Pagar {message.paymentConcept} · {message.paymentAmount}</p>
-          <p className="mt-0.5 truncate text-[12.5px] text-[#0a7cff] underline">{message.paymentUrl}</p>
-          {message.time && <p className="mt-[3px] text-right text-[10.5px] leading-none text-black/40">{message.time}</p>}
+        <p>Pagar {message.paymentConcept} · {message.paymentAmount}</p>
+        <p className="mt-0.5 break-all text-[#0a7cff] underline">{message.paymentUrl}</p>
+        <div className="mt-[3px] flex items-center justify-end gap-1 text-black/40">
+          <span className="text-[10.5px] leading-none">{message.time}</span>
         </div>
       </button>
     </div>
